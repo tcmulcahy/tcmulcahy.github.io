@@ -1,5 +1,5 @@
 +++
-title = 'logcat, but just for one package'
+title = 'logcat, but just one package'
 tags = ['android']
 date = 2023-09-17T08:46:11-07:00
 draft = false

@@ -1,0 +1,4 @@
+baseURL = 'https://blog.mulcahy.ca/'
+languageCode = 'en-us'
+title = 'Uncountable Turtles'
+theme = 'holy'

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>#android</title>
+    <style>
+        .navbar {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding-top: 0.5em;
+            padding-bottom: 0.5em;
+        }
+
+        .post-list {
+            width: 100%;
+        }
+
+        .post-entry {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5em 0;
+        }
+
+        .post-date {
+            flex: 0 0 4em;
+            text-align: left;
+        }
+
+        .post-title {
+            flex: 1;
+            margin-left: 1em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .post-tags {
+            flex: 0 0 10em;
+            text-align: right;
+            margin-left: auto; /* push text to the right */
+        }
+
+        body {
+            background-color: black; /* Dark background */
+            color: white;            /* Light text */
+            padding: 20px;  /* Adjust this value as needed */
+            margin: 0 auto;  /* Removes default margin, centers content if the viewport is too wide */
+            max-width: 60em;
+        }
+
+        /* Regular links */
+        a {
+            color: #1E90FF; /* Bright Blue */
+            text-decoration: none; /* Removing the underline, but this is optional */
+            transition: color 0.3s ease; /* Smooth transition for hover effects */
+        }
+
+        /* Visited links */
+        a:visited {
+            color: #9370DB; /* Medium Purple */
+        }
+
+        /* Hover state */
+        a:hover {
+            color: #FFD700; /* Golden for a subtle highlight */
+            text-decoration: underline; /* Underlining on hover for clarity */
+        }
+
+        /* Active state (when the link is being clicked) */
+        a:active {
+            color: #FF4500; /* Orange-Red for a brief moment when clicked */
+        }
+
+        /* minimalist pygments */
+        pre { line-height: 125%; }
+        td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+        span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+        td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+        span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+        .codehilite .hll { background-color: #ffffcc }
+        .codehilite { background: #171717; color: #e0e0e0 }
+        .codehilite .k { color: #ffffff; font-weight: bold } /* Keyword */
+        .codehilite .o { color: #ffffff; font-weight: bold } /* Operator */
+        .codehilite .p { color: #ffffff; font-weight: bold } /* Punctuation */
+        .codehilite .kc { color: #ffffff; font-weight: bold } /* Keyword.Constant */
+        .codehilite .kd { color: #ffffff; font-weight: bold } /* Keyword.Declaration */
+        .codehilite .kn { color: #ffffff; font-weight: bold } /* Keyword.Namespace */
+        .codehilite .kp { color: #ffffff; font-weight: bold } /* Keyword.Pseudo */
+        .codehilite .kr { color: #ffffff; font-weight: bold } /* Keyword.Reserved */
+        .codehilite .kt { color: #ffffff; font-weight: bold } /* Keyword.Type */
+        .codehilite .ow { color: #ffffff; font-weight: bold } /* Operator.Word */
+        .codehilite .pm { color: #ffffff; font-weight: bold } /* Punctuation.Marker */
+        .codehilite .w { color: #c0c0c0 } /* Text.Whitespace */
+    </style>
+</head>
+<body>
+<h1>#android</h1>
+<div class="post-list">
+    <div class="post-entry">
+        <span class="post-date">Sep '23</span>
+        <span class="post-title"><a href="posts/logcat-package.html">logcat, but just one package</a></span>
+        <span class="post-tags"><a href="/tags/android.html">#android</a></span>
+    </div>
+</div>
+
+<br>
+<div class="navbar">
+    <a href="/">Index</a>
+    <a href="/rss.xml">RSS</a>
+    <a href="/about.html">About</a>
+</div>
+
+</body>
+</html>

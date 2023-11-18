@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+
+<channel>
+    <title>Tom Mulcahy's blog</title>
+    <link>https://blog.mulcahy.ca</link>
+    <description>Tom Mulcahy's blog</description>
+    <language>en-us</language>
+
+    <item>
+        <title>Simple password generator in Python</title>
+        <link>posts/simple-password-generator-in-python.html</link>
+        <description>3 line Python script for generating secure passwords</description>
+        <pubDate>2023-10-09 16:05:26</pubDate>
+        <guid isPermaLink="true">posts/simple-password-generator-in-python.html</guid>
+     </item>
+
+     <item>
+        <title>Clearing the terminal scrollback</title>
+        <link>posts/clearing-the-terminal-scrollback.html</link>
+        <description>Making clear work the way I think it should</description>
+        <pubDate>2023-11-16 23:54:41</pubDate>
+        <guid isPermaLink="true">posts/clearing-the-terminal-scrollback.html</guid>
+     </item>
+
+     <item>
+        <title>logcat, but just one package</title>
+        <link>posts/logcat-package.html</link>
+        <description>A shell script for limiting logcat output to a single package</description>
+        <pubDate>2023-09-17 08:46:11</pubDate>
+        <guid isPermaLink="true">posts/logcat-package.html</guid>
+     </item>
+</channel>
+</rss>

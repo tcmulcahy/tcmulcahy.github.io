@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>logcat, but just one package</title>
+    <style>
+        .navbar {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding-top: 0.5em;
+            padding-bottom: 0.5em;
+        }
+
+        .post-list {
+            width: 100%;
+        }
+
+        .post-entry {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5em 0;
+        }
+
+        .post-date {
+            flex: 0 0 4em;
+            text-align: left;
+        }
+
+        .post-title {
+            flex: 1;
+            margin-left: 1em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .post-tags {
+            flex: 0 0 10em;
+            text-align: right;
+            margin-left: auto; /* push text to the right */
+        }
+
+        body {
+            background-color: black; /* Dark background */
+            color: white;            /* Light text */
+            padding: 20px;  /* Adjust this value as needed */
+            margin: 0 auto;  /* Removes default margin, centers content if the viewport is too wide */
+            max-width: 60em;
+        }
+
+        /* Regular links */
+        a {
+            color: #1E90FF; /* Bright Blue */
+            text-decoration: none; /* Removing the underline, but this is optional */
+            transition: color 0.3s ease; /* Smooth transition for hover effects */
+        }
+
+        /* Visited links */
+        a:visited {
+            color: #9370DB; /* Medium Purple */
+        }
+
+        /* Hover state */
+        a:hover {
+            color: #FFD700; /* Golden for a subtle highlight */
+            text-decoration: underline; /* Underlining on hover for clarity */
+        }
+
+        /* Active state (when the link is being clicked) */
+        a:active {
+            color: #FF4500; /* Orange-Red for a brief moment when clicked */
+        }
+
+        /* minimalist pygments */
+        pre { line-height: 125%; }
+        td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+        span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+        td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+        span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+        .codehilite .hll { background-color: #ffffcc }
+        .codehilite { background: #171717; color: #e0e0e0 }
+        .codehilite .k { color: #ffffff; font-weight: bold } /* Keyword */
+        .codehilite .o { color: #ffffff; font-weight: bold } /* Operator */
+        .codehilite .p { color: #ffffff; font-weight: bold } /* Punctuation */
+        .codehilite .kc { color: #ffffff; font-weight: bold } /* Keyword.Constant */
+        .codehilite .kd { color: #ffffff; font-weight: bold } /* Keyword.Declaration */
+        .codehilite .kn { color: #ffffff; font-weight: bold } /* Keyword.Namespace */
+        .codehilite .kp { color: #ffffff; font-weight: bold } /* Keyword.Pseudo */
+        .codehilite .kr { color: #ffffff; font-weight: bold } /* Keyword.Reserved */
+        .codehilite .kt { color: #ffffff; font-weight: bold } /* Keyword.Type */
+        .codehilite .ow { color: #ffffff; font-weight: bold } /* Operator.Word */
+        .codehilite .pm { color: #ffffff; font-weight: bold } /* Punctuation.Marker */
+        .codehilite .w { color: #c0c0c0 } /* Text.Whitespace */
+    </style>
+</head>
+<body>
+
+<h1>logcat, but just one package</h1>
+
+<p><i>A shell script for limiting logcat output to a single package</i></p>
+
+<p>I like to view the logcat output for just my app and nothing else. Here's a
+small shell script I use for this. Consider placing it in your <code>.zshrc</code> or
+<code>.bashrc</code> so that it's always available.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">function</span><span class="w"> </span>logcat<span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nv">pkg</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nb">shift</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$pkg</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;Usage: logcat pkg ...&#39;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="m">1</span>
+<span class="w">    </span><span class="k">fi</span>
+
+<span class="w">    </span><span class="nv">uid</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>adb<span class="w"> </span>shell<span class="w"> </span>pm<span class="w"> </span>list<span class="w"> </span>package<span class="w"> </span>-U<span class="w"> </span><span class="nv">$pkg</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">&#39;s/.*uid://&#39;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$uid</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;pkg &#39;</span><span class="nv">$pkg</span><span class="s2">&#39; not found&quot;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="m">1</span>
+<span class="w">    </span><span class="k">fi</span>
+
+<span class="w">    </span>adb<span class="w"> </span>logcat<span class="w"> </span>--uid<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$uid</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+<span class="o">}</span>
+</code></pre></div>
+
+<p>Usage is:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># replace com.example.android with your app&#39;s package name</span>
+$<span class="w"> </span>logcat<span class="w"> </span>com.example.android
+</code></pre></div>
+
+<p>Since this script filters for uid rather than pid, it will continue showing
+output even if your process is restarted. Any additional args will be passed on
+to logcat, so you can specify tags, etc.</p>
+
+<br>
+
+<p>
+    If you enjoyed this post, please let me know on
+    <a href="https://twitter.com/tommulcahy">Twitter</a>
+    or
+    <a href="https://androiddev.social/@tcm">Mastodon</a>.
+</p>
+
+<p>
+    <i>Posted September 17, 2023.</i>
+</p>
+<p>
+    <i>Tags:</i> <a href="/tags/android.html">#android</a>
+</p>
+
+<div class="navbar">
+    <a href="/">Index</a>
+    <a href="/rss.xml">RSS</a>
+    <a href="/about.html">About</a>
+</div>
+
+</body>
+</html>

@@ -3,13 +3,13 @@
 
 <channel>
     <title>Tom Mulcahy's blog</title>
-    <link>https://blog.mulcahy.ca</link>
+    <link>https://mulcahy.ca</link>
     <description>Tom Mulcahy's blog</description>
     <language>en-us</language>
 
     <item>
         <title>Simple password generator in Python</title>
-        <link>posts/simple-password-generator-in-python.html</link>
+        <link>https://mulcahy.ca/posts/simple-password-generator-in-python.html</link>
         <description>3 line Python script for generating secure passwords</description>
         <pubDate>2023-11-18 16:28:22</pubDate>
         <guid isPermaLink="true">posts/simple-password-generator-in-python.html</guid>
@@ -17,7 +17,7 @@
 
      <item>
         <title>logcat, but just one package</title>
-        <link>posts/logcat-package.html</link>
+        <link>https://mulcahy.ca/posts/logcat-package.html</link>
         <description>A shell script for limiting logcat output to a single package</description>
         <pubDate>2023-09-17 08:46:11</pubDate>
         <guid isPermaLink="true">posts/logcat-package.html</guid>

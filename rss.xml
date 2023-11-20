@@ -8,6 +8,14 @@
     <language>en-us</language>
 
     <item>
+        <title>Clearing the terminal scrollback</title>
+        <link>https://mulcahy.ca/posts/clearing-the-terminal-scrollback.html</link>
+        <description>Making clear work the way I think it should</description>
+        <pubDate>2023-11-19 21:29:59</pubDate>
+        <guid isPermaLink="true">posts/clearing-the-terminal-scrollback.html</guid>
+     </item>
+
+     <item>
         <title>Simple password generator in Python</title>
         <link>https://mulcahy.ca/posts/simple-password-generator-in-python.html</link>
         <description>3 line Python script for generating secure passwords</description>

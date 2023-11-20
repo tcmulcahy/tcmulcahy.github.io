@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index</title>
+    <title>Clearing the terminal scrollback</title>
     <style>
         .navbar {
             display: flex;
@@ -97,28 +97,39 @@
     </style>
 </head>
 <body>
-<h1>Index</h1>
-<div class="post-list">
-    <div class="post-entry">
-        <span class="post-date">Nov '23</span>
-        <span class="post-title"><a href="posts/clearing-the-terminal-scrollback.html">Clearing the terminal scrollback</a></span>
-        <span class="post-tags"></span>
-    </div>
 
-    <div class="post-entry">
-        <span class="post-date">Nov '23</span>
-        <span class="post-title"><a href="posts/simple-password-generator-in-python.html">Simple password generator in Python</a></span>
-        <span class="post-tags"><a href="/tags/python.html">#python</a></span>
-    </div>
+<h1>Clearing the terminal scrollback</h1>
 
-    <div class="post-entry">
-        <span class="post-date">Sep '23</span>
-        <span class="post-title"><a href="posts/logcat-package.html">logcat, but just one package</a></span>
-        <span class="post-tags"><a href="/tags/android.html">#android</a></span>
-    </div>
-</div>
+<p><i>Making clear work the way I think it should</i></p>
+
+<p>For some reason the <code>clear</code> command clears the terminal but not the scrollback
+buffer. Here's how to fix that. Consider placing this in your
+<code>.zshrc</code>/<code>.bashrc</code>/etc so that it's always available.</p>
+<div class="codehilite"><pre><span></span><code>clear() {
+    # Invoke the original clear command
+    command clear
+
+    # Clear the scrollback buffer
+    printf &#39;\e[3J&#39;
+}
+</code></pre></div>
 
 <br>
+
+<p>
+    If you enjoyed this post, please let me know on
+    <a href="https://twitter.com/tommulcahy">Twitter</a>
+    or
+    <a href="https://androiddev.social/@tcm">Mastodon</a>.
+</p>
+
+<p>
+    <i>Posted November 19, 2023.</i>
+</p>
+<p>
+    <i>Tags:</i> &lt;None&gt;
+</p>
+
 <div class="navbar">
     <a href="/">Index</a>
     <a href="/rss.xml">RSS</a>

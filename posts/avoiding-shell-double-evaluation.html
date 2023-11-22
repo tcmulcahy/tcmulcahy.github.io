@@ -132,12 +132,12 @@ an environment variable in the context of the remote shell.</p>
 scripts that invoke <code>adb shell</code> internally and <em>mostly</em> work, except when I
 pass arguments with spaces.</p>
 <p>I <em>think</em> I've figured out a robust workaround:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">run</span><span class="o">-</span><span class="n">escaped</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">shell</span><span class="o">=</span><span class="n">$1</span>
-<span class="w">  </span><span class="n">shift</span>
+<div class="codehilite"><pre><span></span><code>run-escaped<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span><span class="nv">shell</span><span class="o">=</span><span class="nv">$1</span>
+<span class="w">  </span><span class="nb">shift</span>
 
-<span class="w">  </span><span class="n">$shell</span><span class="w"> </span><span class="s">&quot;$(printf &quot;</span><span class="w"> </span><span class="o">%</span><span class="n">q</span><span class="s">&quot; &quot;</span><span class="n">$</span><span class="s">@&quot;)&quot;</span>
-<span class="p">}</span>
+<span class="w">  </span><span class="nv">$shell</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">printf</span><span class="w"> </span><span class="s2">&quot; %q&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="o">}</span>
 </code></pre></div>
 
 <p>Usage:</p>

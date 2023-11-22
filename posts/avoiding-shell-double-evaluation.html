@@ -127,8 +127,10 @@ $<span class="w"> </span>adb<span class="w"> </span>shell<span class="w"> </span
 <p>And here lies the problem. When we run a command with <code>adb shell</code> (or <code>ssh</code>) it
 gets double-evaluated - once by our current shell, and once by the shell on the
 device. Sometimes this might be what you want. e.g. You might want to evaluated
-an environment variable in the context of the remote shell. But it's really
-annoying when it's not what you want.</p>
+an environment variable in the context of the remote shell.</p>
+<p>But it's really annoying when it's not what you want. I've written a
+scripts that invoke <code>adb shell</code> internally and <em>mostly</em> work, except when I
+pass arguments with spaces.</p>
 <p>I <em>think</em> I've figured out a robust workaround:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">run</span><span class="o">-</span><span class="n">escaped</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="n">shell</span><span class="o">=</span><span class="n">$1</span>

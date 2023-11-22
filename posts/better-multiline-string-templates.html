@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Better multiline string templates</title>
+    <style>
+        .navbar {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding-top: 0.5em;
+            padding-bottom: 0.5em;
+        }
+
+        .post-list {
+            width: 100%;
+        }
+
+        .post-entry {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5em 0;
+        }
+
+        .post-date {
+            flex: 0 0 4em;
+            text-align: left;
+        }
+
+        .post-title {
+            flex: 1;
+            margin-left: 1em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .post-tags {
+            flex: 0 0 10em;
+            text-align: right;
+            margin-left: auto; /* push text to the right */
+        }
+
+        body {
+            background-color: black; /* Dark background */
+            color: white;            /* Light text */
+            padding: 20px;  /* Adjust this value as needed */
+            margin: 0 auto;  /* Removes default margin, centers content if the viewport is too wide */
+            max-width: 60em;
+        }
+
+        /* Regular links */
+        a {
+            color: #1E90FF; /* Bright Blue */
+            text-decoration: none; /* Removing the underline, but this is optional */
+            transition: color 0.3s ease; /* Smooth transition for hover effects */
+        }
+
+        /* Visited links */
+        a:visited {
+            color: #9370DB; /* Medium Purple */
+        }
+
+        /* Hover state */
+        a:hover {
+            color: #FFD700; /* Golden for a subtle highlight */
+            text-decoration: underline; /* Underlining on hover for clarity */
+        }
+
+        /* Active state (when the link is being clicked) */
+        a:active {
+            color: #FF4500; /* Orange-Red for a brief moment when clicked */
+        }
+
+        /* minimalist pygments */
+        pre { line-height: 125%; }
+        td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+        span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+        td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+        span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+        .codehilite .hll { background-color: #ffffcc }
+        .codehilite { background: #171717; color: #e0e0e0 }
+        .codehilite .k { color: #ffffff; font-weight: bold } /* Keyword */
+        .codehilite .o { color: #ffffff; font-weight: bold } /* Operator */
+        .codehilite .p { color: #ffffff; font-weight: bold } /* Punctuation */
+        .codehilite .kc { color: #ffffff; font-weight: bold } /* Keyword.Constant */
+        .codehilite .kd { color: #ffffff; font-weight: bold } /* Keyword.Declaration */
+        .codehilite .kn { color: #ffffff; font-weight: bold } /* Keyword.Namespace */
+        .codehilite .kp { color: #ffffff; font-weight: bold } /* Keyword.Pseudo */
+        .codehilite .kr { color: #ffffff; font-weight: bold } /* Keyword.Reserved */
+        .codehilite .kt { color: #ffffff; font-weight: bold } /* Keyword.Type */
+        .codehilite .ow { color: #ffffff; font-weight: bold } /* Operator.Word */
+        .codehilite .pm { color: #ffffff; font-weight: bold } /* Punctuation.Marker */
+        .codehilite .w { color: #c0c0c0 } /* Text.Whitespace */
+    </style>
+</head>
+<body>
+
+<h1>Better multiline string templates</h1>
+
+<p><i>Subtle problems with templates in multiline strings and some ways to fix them</i></p>
+
+<p>These days many languages support multiline string templates. Here's what they
+look like in Kotlin:</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">val</span><span class="w"> </span><span class="nv">example</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">        This</span>
+<span class="s">        is a</span>
+<span class="s">        multiline</span>
+<span class="s">        string.</span>
+<span class="s">    &quot;&quot;&quot;</span>
+</code></pre></div>
+
+<p>But that will create a multiline with a bunch of spaces at the beginning of each line:</p>
+<div class="codehilite"><pre><span></span><code>        This
+        is a
+        multiline
+        string.
+</code></pre></div>
+
+<p>So I like to use <code>trimIndent</code> to remove these spaces.</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">val</span><span class="w"> </span><span class="nv">example</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">        This</span>
+<span class="s">        is a</span>
+<span class="s">        multiline</span>
+<span class="s">        string.</span>
+<span class="s">    &quot;&quot;&quot;</span><span class="p">.</span><span class="na">trimIndent</span><span class="p">()</span>
+</code></pre></div>
+
+<p>This works the way I expect:</p>
+<div class="codehilite"><pre><span></span><code>This
+is a
+multiline
+string.
+</code></pre></div>
+
+<p>But problems happen when I combine string templating with trimIndent:</p>
+<div class="codehilite"><pre><span></span><code>val center = &quot;&quot;&quot;
+        is a
+        multiline
+    &quot;&quot;&quot;.trimIndent()
+
+val example = &quot;&quot;&quot;
+        This
+        $center
+        string.
+    &quot;&quot;&quot;.trimIndent()
+</code></pre></div>
+
+<p><code>$center</code> gets expanded to a string consisting of two lines with no
+indentation. The first line is indented because <code>$center</code> itself is indented.
+But the second line is not indented.</p>
+<div class="codehilite"><pre><span></span><code>        This
+        is a
+multiline
+        string.
+</code></pre></div>
+
+<p>If you want a workaround that works in kotlin, try this:</p>
+<div class="codehilite"><pre><span></span><code>val<span class="w"> </span>center<span class="w"> </span>=<span class="w"> </span>&quot;&quot;&quot;
+<span class="w">       </span>|is<span class="w"> </span>a
+<span class="w">       </span>|multiline
+<span class="w">    </span>&quot;&quot;&quot;.trimMargin()
+
+val<span class="w"> </span>example<span class="w"> </span>=<span class="w"> </span>&quot;&quot;&quot;
+<span class="w">       </span>|This
+<span class="w">       </span>|<span class="cp">${</span><span class="n">center</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">|&quot;</span><span class="p">)</span><span class="cp">}</span>
+<span class="w">       </span>|string.
+<span class="w">    </span>&quot;&quot;&quot;.trimMargin()
+</code></pre></div>
+
+<p>I think the margin character is a little ugly, and the requirement of embedding
+with <code>${center.replace("\n", "\n|")}</code> is quite ugly. Maybe even worse, you can
+use <code>$center</code> and it will actually work - most of the time. The problem happens
+if <code>center</code> contains lines that actually begin with the <code>|</code> character:</p>
+<div class="codehilite"><pre><span></span><code>val center = &quot;&quot;&quot;
+       |is a
+       ||multiline beginning with pipe
+    &quot;&quot;&quot;.trimMargin()
+
+val example = &quot;&quot;&quot;
+       |This
+       |$center
+       |string.
+    &quot;&quot;&quot;.trimMargin()
+</code></pre></div>
+
+<p>Notice that extra <code>|</code> I added in front of <code>multiline</code>? That indicates that the
+line actually does begin with a <code>|</code> character:</p>
+<div class="codehilite"><pre><span></span><code>is a
+|multiline beginning with pipe
+</code></pre></div>
+
+<p>But because I referenced <code>$center</code> directly that leading <code>|</code> gets removed and
+<code>|multiline beginning with pipe</code> turns into <code>multiline beginning with pipe</code>:</p>
+<div class="codehilite"><pre><span></span><code>This
+is a
+multiline beginning with pipe
+string.
+</code></pre></div>
+
+<p>So it works, if you accept some ugliness, and you're careful. I wanted a better
+way. And it turns out I can do it in Scala. I just need to define a custom
+string type:</p>
+<div class="codehilite"><pre><span></span><code>implicit<span class="w"> </span>class<span class="w"> </span>AdjustedMultiline(val<span class="w"> </span>sc:<span class="w"> </span>StringContext)<span class="w"> </span>extends<span class="w"> </span>AnyVal<span class="w"> </span>{
+<span class="w">  </span>def<span class="w"> </span>m(args:<span class="w"> </span>Any*):<span class="w"> </span>String<span class="w"> </span>=<span class="w"> </span>{
+<span class="w">    </span>val<span class="w"> </span>indentation<span class="w"> </span>=<span class="w"> </span>sc.parts.mkString.linesIterator.filter(_.trim.nonEmpty).map(line<span class="w"> </span>=&gt;<span class="w"> </span>line.takeWhile(_<span class="w"> </span>==<span class="w"> </span>&#39;<span class="w"> </span>&#39;).length).min
+
+<span class="w">    </span>val<span class="w"> </span>processed<span class="w"> </span>=<span class="w"> </span>sc.parts.zipAll(args,<span class="w"> </span>&quot;&quot;,<span class="w"> </span>&quot;&quot;).map<span class="w"> </span>{
+<span class="w">      </span>case<span class="w"> </span>(str,<span class="w"> </span>arg)<span class="w"> </span>=&gt;
+<span class="w">        </span>str<span class="w"> </span>+<span class="w"> </span>arg.toString.split(&quot;\n&quot;).mkString(&quot;\n&quot;<span class="w"> </span>+<span class="w"> </span>(&quot;<span class="w"> </span>&quot;<span class="w"> </span>*<span class="w"> </span>indentation))
+<span class="w">    </span>}
+
+<span class="w">    </span>//<span class="w"> </span>Strip<span class="w"> </span>starting/ending<span class="w"> </span>newlines.<span class="w"> </span>The<span class="w"> </span>last<span class="w"> </span>newline<span class="w"> </span>likely<span class="w"> </span>has<span class="w"> </span>spaces<span class="w"> </span>after
+<span class="w">    </span>//<span class="w"> </span>it,<span class="w"> </span>so<span class="w"> </span>we<span class="w"> </span>need<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span>a<span class="w"> </span>regex<span class="w"> </span>to<span class="w"> </span>remove<span class="w"> </span>those.
+<span class="w">    </span>//<span class="w"> </span>We<span class="w"> </span>do<span class="w"> </span>this<span class="w"> </span>to<span class="w"> </span>support<span class="w"> </span>syntax<span class="w"> </span>like:
+<span class="w">    </span>//<span class="w">   </span>val<span class="w"> </span>str<span class="w"> </span>=<span class="w"> </span>m&quot;&quot;&quot;
+<span class="w">    </span>//<span class="w">       </span>string<span class="w"> </span>content
+<span class="w">    </span>//<span class="w">     </span>&quot;&quot;&quot;
+<span class="w">    </span>//<span class="w"> </span>which<span class="w"> </span>should<span class="w"> </span>be<span class="w"> </span>equal<span class="w"> </span>to<span class="w"> </span>&quot;string<span class="w"> </span>content&quot;
+<span class="w">    </span>val<span class="w"> </span>combined<span class="w"> </span>=<span class="w"> </span>processed.mkString.stripPrefix(&quot;\n&quot;).replaceAll(&quot;\n<span class="w"> </span>+$&quot;,<span class="w"> </span>&quot;&quot;)
+
+<span class="w">    </span>combined.linesIterator.map(line<span class="w"> </span>=&gt;<span class="w"> </span>line.drop(indentation)).mkString(&quot;\n&quot;)
+<span class="w">  </span>}
+}
+</code></pre></div>
+
+<p>And then I can write:</p>
+<div class="codehilite"><pre><span></span><code>val center = m&quot;&quot;&quot;
+        is a
+        multiline
+    &quot;&quot;&quot;
+
+val example = m&quot;&quot;&quot;
+        This
+        $center
+        string.
+    &quot;&quot;&quot;
+</code></pre></div>
+
+<p>And it works the way I'd hope:</p>
+<div class="codehilite"><pre><span></span><code>This
+is a
+multiline
+string.
+</code></pre></div>
+
+<p>Is there any reason why language designers don't handle multiline string
+templating like this by default?</p>
+
+<br>
+
+<p>
+    If you enjoyed this post, please let me know on
+    <a href="https://twitter.com/tommulcahy">Twitter</a>
+    or
+    <a href="https://androiddev.social/@tcm">Mastodon</a>.
+</p>
+
+<p>
+    <i>Posted November 21, 2023.</i>
+</p>
+<p>
+    <i>Tags:</i> <a href="/tags/kotlin.html">#kotlin</a>
+</p>
+
+<div class="navbar">
+    <a href="/">Index</a>
+    <a href="/rss.xml">RSS</a>
+    <a href="/about.html">About</a>
+</div>
+
+</body>
+</html>

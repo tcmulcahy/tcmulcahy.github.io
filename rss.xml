@@ -8,6 +8,14 @@
     <language>en-us</language>
 
     <item>
+        <title>Better multiline string templates</title>
+        <link>https://mulcahy.ca/posts/better-multiline-string-templates.html</link>
+        <description>Subtle problems with templates in multiline strings and some ways to fix them</description>
+        <pubDate>2023-11-21 17:12:31</pubDate>
+        <guid isPermaLink="true">posts/better-multiline-string-templates.html</guid>
+     </item>
+
+     <item>
         <title>Clearing the terminal scrollback</title>
         <link>https://mulcahy.ca/posts/clearing-the-terminal-scrollback.html</link>
         <description>Making clear work the way I think it should</description>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avoiding shell double-evaluation</title>
+    <style>
+        .navbar {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding-top: 0.5em;
+            padding-bottom: 0.5em;
+        }
+
+        .post-list {
+            width: 100%;
+        }
+
+        .post-entry {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5em 0;
+        }
+
+        .post-date {
+            flex: 0 0 4em;
+            text-align: left;
+        }
+
+        .post-title {
+            flex: 1;
+            margin-left: 1em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .post-tags {
+            flex: 0 0 10em;
+            text-align: right;
+            margin-left: auto; /* push text to the right */
+        }
+
+        body {
+            background-color: black; /* Dark background */
+            color: white;            /* Light text */
+            padding: 20px;  /* Adjust this value as needed */
+            margin: 0 auto;  /* Removes default margin, centers content if the viewport is too wide */
+            max-width: 60em;
+        }
+
+        /* Regular links */
+        a {
+            color: #1E90FF; /* Bright Blue */
+            text-decoration: none; /* Removing the underline, but this is optional */
+            transition: color 0.3s ease; /* Smooth transition for hover effects */
+        }
+
+        /* Visited links */
+        a:visited {
+            color: #9370DB; /* Medium Purple */
+        }
+
+        /* Hover state */
+        a:hover {
+            color: #FFD700; /* Golden for a subtle highlight */
+            text-decoration: underline; /* Underlining on hover for clarity */
+        }
+
+        /* Active state (when the link is being clicked) */
+        a:active {
+            color: #FF4500; /* Orange-Red for a brief moment when clicked */
+        }
+
+        /* minimalist pygments */
+        pre { line-height: 125%; }
+        td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+        span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+        td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+        span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+        .codehilite .hll { background-color: #ffffcc }
+        .codehilite { background: #171717; color: #e0e0e0 }
+        .codehilite .k { color: #ffffff; font-weight: bold } /* Keyword */
+        .codehilite .o { color: #ffffff; font-weight: bold } /* Operator */
+        .codehilite .p { color: #ffffff; font-weight: bold } /* Punctuation */
+        .codehilite .kc { color: #ffffff; font-weight: bold } /* Keyword.Constant */
+        .codehilite .kd { color: #ffffff; font-weight: bold } /* Keyword.Declaration */
+        .codehilite .kn { color: #ffffff; font-weight: bold } /* Keyword.Namespace */
+        .codehilite .kp { color: #ffffff; font-weight: bold } /* Keyword.Pseudo */
+        .codehilite .kr { color: #ffffff; font-weight: bold } /* Keyword.Reserved */
+        .codehilite .kt { color: #ffffff; font-weight: bold } /* Keyword.Type */
+        .codehilite .ow { color: #ffffff; font-weight: bold } /* Operator.Word */
+        .codehilite .pm { color: #ffffff; font-weight: bold } /* Punctuation.Marker */
+        .codehilite .w { color: #c0c0c0 } /* Text.Whitespace */
+    </style>
+</head>
+<body>
+
+<h1>Avoiding shell double-evaluation</h1>
+
+<p><i>How to avoid double-evaluating commands in ssh / adb shell / etc.</i></p>
+
+<p>I like to use the following <code>echo-args.sh</code> script to debug shell
+double-evaluation problems:</p>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/sh</span>
+
+<span class="k">for</span><span class="w"> </span>arg<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="nv">$arg</span><span class="s2">&quot;</span><span class="se">\&quot;</span>
+<span class="k">done</span>
+</code></pre></div>
+
+<p>You can then push this to an android device:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>chmod<span class="w"> </span>u+x<span class="w"> </span>echo-args.sh
+$<span class="w"> </span>adb<span class="w"> </span>push<span class="w"> </span>/data/local/tmp/
+</code></pre></div>
+
+<p>And run it like so:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>./echo-args.sh<span class="w"> </span><span class="s1">&#39;hello world&#39;</span>
+<span class="s2">&quot;hello world&quot;</span>
+$<span class="w"> </span>adb<span class="w"> </span>shell<span class="w"> </span>/data/local/tmp/echo-args.sh<span class="w"> </span><span class="s1">&#39;hello world&#39;</span>
+<span class="s2">&quot;hello&quot;</span>
+<span class="s2">&quot;world&quot;</span>
+</code></pre></div>
+
+<p>And here lies the problem. When we run a command with <code>adb shell</code> (or <code>ssh</code>) it
+gets double-evaluated - once by our current shell, and once by the shell on the
+device. Sometimes this might be what you want. e.g. You might want to evaluated
+an environment variable in the context of the remote shell. But it's really
+annoying when it's not what you want.</p>
+<p>I <em>think</em> I've figured out a robust workaround:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">run</span><span class="o">-</span><span class="n">escaped</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">shell</span><span class="o">=</span><span class="n">$1</span>
+<span class="w">  </span><span class="n">shift</span>
+
+<span class="w">  </span><span class="n">$shell</span><span class="w"> </span><span class="s">&quot;$(printf &quot;</span><span class="w"> </span><span class="o">%</span><span class="n">q</span><span class="s">&quot; &quot;</span><span class="n">$</span><span class="s">@&quot;)&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Usage:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>run-escaped<span class="w"> </span><span class="s1">&#39;adb shell&#39;</span><span class="w"> </span>/data/local/tmp/echo-args.sh<span class="w"> </span><span class="s1">&#39;hello world&#39;</span>
+<span class="s2">&quot;hello world&quot;</span>
+</code></pre></div>
+
+<p>It also works with <code>ssh</code>:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>run-escaped<span class="w"> </span><span class="s1">&#39;ssh remotebox&#39;</span><span class="w"> </span>/data/local/tmp/echo-args.sh<span class="w"> </span><span class="s1">&#39;hello world&#39;</span>
+<span class="s2">&quot;hello world&quot;</span>
+</code></pre></div>
+
+<p>This works by first escaping all of the arguments, after they've been
+evaluated once by the local shell. Then it passes this as a string to the
+remote shell.</p>
+<p>The double-evaluation still happens, but since we escaped our parameters, it's
+as if it didn't happen.</p>
+
+<br>
+
+<p>
+    If you enjoyed this post, please let me know on
+    <a href="https://twitter.com/tommulcahy">Twitter</a>
+    or
+    <a href="https://androiddev.social/@tcm">Mastodon</a>.
+</p>
+
+<p>
+    <i>Posted November 22, 2023.</i>
+</p>
+<p>
+    <i>Tags:</i> <a href="/tags/shell.html">#shell</a>
+</p>
+
+<div class="navbar">
+    <a href="/">Index</a>
+    <a href="/rss.xml">RSS</a>
+    <a href="/about.html">About</a>
+</div>
+
+</body>
+</html>

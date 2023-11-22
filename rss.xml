@@ -8,6 +8,14 @@
     <language>en-us</language>
 
     <item>
+        <title>Avoiding shell double-evaluation</title>
+        <link>https://mulcahy.ca/posts/avoiding-shell-double-evaluation.html</link>
+        <description>How to avoid double-evaluating commands in ssh / adb shell / etc.</description>
+        <pubDate>2023-11-22 12:44:21</pubDate>
+        <guid isPermaLink="true">posts/avoiding-shell-double-evaluation.html</guid>
+     </item>
+
+     <item>
         <title>Better multiline string templates</title>
         <link>https://mulcahy.ca/posts/better-multiline-string-templates.html</link>
         <description>Subtle problems with templates in multiline strings and some ways to fix them</description>

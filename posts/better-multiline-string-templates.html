@@ -205,23 +205,34 @@ way. And it turns out I can do it in Scala. I just need to define a custom
 string type:</p>
 <div class="codehilite"><pre><span></span><code>implicit<span class="w"> </span>class<span class="w"> </span>AdjustedMultiline(val<span class="w"> </span>sc:<span class="w"> </span>StringContext)<span class="w"> </span>extends<span class="w"> </span>AnyVal<span class="w"> </span>{
 <span class="w">  </span>def<span class="w"> </span>m(args:<span class="w"> </span>Any*):<span class="w"> </span>String<span class="w"> </span>=<span class="w"> </span>{
-<span class="w">    </span>val<span class="w"> </span>indentation<span class="w"> </span>=<span class="w"> </span>sc.parts.mkString.linesIterator.filter(_.trim.nonEmpty).map(line<span class="w"> </span>=&gt;<span class="w"> </span>line.takeWhile(_<span class="w"> </span>==<span class="w"> </span>&#39;<span class="w"> </span>&#39;).length).min
+<span class="w">    </span>//<span class="w"> </span>Create<span class="w"> </span>a<span class="w"> </span>string<span class="w"> </span>where<span class="w"> </span>each<span class="w"> </span>arg<span class="w"> </span>is<span class="w"> </span>&#39;x&#39;
+<span class="w">    </span>assert(sc.parts.length<span class="w"> </span>==<span class="w"> </span>args.length<span class="w"> </span>+<span class="w"> </span>1)
+<span class="w">    </span>val<span class="w"> </span>parts<span class="w"> </span>=<span class="w"> </span>sc.parts
+<span class="w">    </span>val<span class="w"> </span>substitutedArgs<span class="w"> </span>=<span class="w"> </span>args.map(_<span class="w"> </span>=&gt;<span class="w"> </span>&quot;x&quot;)
+<span class="w">    </span>val<span class="w"> </span>indentString<span class="w"> </span>=<span class="w"> </span>(parts.init<span class="w"> </span>zip<span class="w"> </span>substitutedArgs).map<span class="w"> </span>{<span class="w"> </span>case<span class="w"> </span>(part,<span class="w"> </span>arg)<span class="w"> </span>=&gt;<span class="w"> </span>part<span class="w"> </span>+<span class="w"> </span>arg<span class="w"> </span>}.mkString<span class="w"> </span>+<span class="w"> </span>parts.last
 
+<span class="w">    </span>//<span class="w"> </span>Use<span class="w"> </span>this<span class="w"> </span>string<span class="w"> </span>to<span class="w"> </span>compute<span class="w"> </span>the<span class="w"> </span>indent<span class="w"> </span>count
+<span class="w">    </span>val<span class="w"> </span>indentCount<span class="w"> </span>=<span class="w"> </span>indentString.linesIterator
+<span class="w">      </span>.filter(_.trim.nonEmpty)
+<span class="w">      </span>.map(line<span class="w"> </span>=&gt;<span class="w"> </span>line.takeWhile(_<span class="w"> </span>==<span class="w"> </span>&#39;<span class="w"> </span>&#39;).length)
+<span class="w">      </span>.minOption
+<span class="w">      </span>.getOrElse(0)<span class="w"> </span>//<span class="w"> </span>Default<span class="w"> </span>value<span class="w"> </span>when<span class="w"> </span>there&#39;s<span class="w"> </span>no<span class="w"> </span>non-empty<span class="w"> </span>line
+
+<span class="w">    </span>//<span class="w"> </span>Add<span class="w"> </span>in<span class="w"> </span>this<span class="w"> </span>indentation<span class="w"> </span>to<span class="w"> </span>each<span class="w"> </span>newline<span class="w"> </span>within<span class="w"> </span>each<span class="w"> </span>arg
 <span class="w">    </span>val<span class="w"> </span>processed<span class="w"> </span>=<span class="w"> </span>sc.parts.zipAll(args,<span class="w"> </span>&quot;&quot;,<span class="w"> </span>&quot;&quot;).map<span class="w"> </span>{
 <span class="w">      </span>case<span class="w"> </span>(str,<span class="w"> </span>arg)<span class="w"> </span>=&gt;
-<span class="w">        </span>str<span class="w"> </span>+<span class="w"> </span>arg.toString.split(&quot;\n&quot;).mkString(&quot;\n&quot;<span class="w"> </span>+<span class="w"> </span>(&quot;<span class="w"> </span>&quot;<span class="w"> </span>*<span class="w"> </span>indentation))
+<span class="w">        </span>str<span class="w"> </span>+<span class="w"> </span>arg.toString.split(&quot;\n&quot;).mkString(&quot;\n&quot;<span class="w"> </span>+<span class="w"> </span>(&quot;<span class="w"> </span>&quot;<span class="w"> </span>*<span class="w"> </span>indentCount))
 <span class="w">    </span>}
 
-<span class="w">    </span>//<span class="w"> </span>Strip<span class="w"> </span>starting/ending<span class="w"> </span>newlines.<span class="w"> </span>The<span class="w"> </span>last<span class="w"> </span>newline<span class="w"> </span>likely<span class="w"> </span>has<span class="w"> </span>spaces<span class="w"> </span>after
-<span class="w">    </span>//<span class="w"> </span>it,<span class="w"> </span>so<span class="w"> </span>we<span class="w"> </span>need<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span>a<span class="w"> </span>regex<span class="w"> </span>to<span class="w"> </span>remove<span class="w"> </span>those.
+<span class="w">    </span>//<span class="w"> </span>Strip<span class="w"> </span>starting/ending<span class="w"> </span>newlines<span class="w"> </span>with<span class="w"> </span>leading/trailing<span class="w"> </span>spaces.
 <span class="w">    </span>//<span class="w"> </span>We<span class="w"> </span>do<span class="w"> </span>this<span class="w"> </span>to<span class="w"> </span>support<span class="w"> </span>syntax<span class="w"> </span>like:
 <span class="w">    </span>//<span class="w">   </span>val<span class="w"> </span>str<span class="w"> </span>=<span class="w"> </span>m&quot;&quot;&quot;
 <span class="w">    </span>//<span class="w">       </span>string<span class="w"> </span>content
 <span class="w">    </span>//<span class="w">     </span>&quot;&quot;&quot;
 <span class="w">    </span>//<span class="w"> </span>which<span class="w"> </span>should<span class="w"> </span>be<span class="w"> </span>equal<span class="w"> </span>to<span class="w"> </span>&quot;string<span class="w"> </span>content&quot;
-<span class="w">    </span>val<span class="w"> </span>combined<span class="w"> </span>=<span class="w"> </span>processed.mkString.stripPrefix(&quot;\n&quot;).replaceAll(&quot;\n<span class="w"> </span>+$&quot;,<span class="w"> </span>&quot;&quot;)
+<span class="w">    </span>val<span class="w"> </span>combined<span class="w"> </span>=<span class="w"> </span>processed.mkString.replaceAll(&quot;^<span class="w"> </span>*\n&quot;,<span class="w"> </span>&quot;&quot;).replaceAll(&quot;\n<span class="w"> </span>*$&quot;,<span class="w"> </span>&quot;&quot;)
 
-<span class="w">    </span>combined.linesIterator.map(line<span class="w"> </span>=&gt;<span class="w"> </span>line.drop(indentation)).mkString(&quot;\n&quot;)
+<span class="w">    </span>combined.linesIterator.map(line<span class="w"> </span>=&gt;<span class="w"> </span>line.drop(indentCount)).mkString(&quot;\n&quot;)
 <span class="w">  </span>}
 }
 </code></pre></div>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuring computer names within a LAN</title>
+    <style>
+        .navbar {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding-top: 0.5em;
+            padding-bottom: 0.5em;
+        }
+
+        .post-list {
+            width: 100%;
+        }
+
+        .post-entry {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5em 0;
+        }
+
+        .post-date {
+            flex: 0 0 4em;
+            text-align: left;
+        }
+
+        .post-title {
+            flex: 1;
+            margin-left: 1em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .post-tags {
+            flex: 0 0 10em;
+            text-align: right;
+            margin-left: auto; /* push text to the right */
+        }
+
+        body {
+            background-color: black; /* Dark background */
+            color: white;            /* Light text */
+            padding: 20px;  /* Adjust this value as needed */
+            margin: 0 auto;  /* Removes default margin, centers content if the viewport is too wide */
+            max-width: 60em;
+        }
+
+        /* Regular links */
+        a {
+            color: #1E90FF; /* Bright Blue */
+            text-decoration: none; /* Removing the underline, but this is optional */
+            transition: color 0.3s ease; /* Smooth transition for hover effects */
+        }
+
+        /* Visited links */
+        a:visited {
+            color: #9370DB; /* Medium Purple */
+        }
+
+        /* Hover state */
+        a:hover {
+            color: #FFD700; /* Golden for a subtle highlight */
+            text-decoration: underline; /* Underlining on hover for clarity */
+        }
+
+        /* Active state (when the link is being clicked) */
+        a:active {
+            color: #FF4500; /* Orange-Red for a brief moment when clicked */
+        }
+
+        /* minimalist pygments */
+        pre { line-height: 125%; }
+        td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+        span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+        td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+        span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+        .codehilite .hll { background-color: #ffffcc }
+        .codehilite { background: #171717; color: #e0e0e0 }
+        .codehilite .k { color: #ffffff; font-weight: bold } /* Keyword */
+        .codehilite .o { color: #ffffff; font-weight: bold } /* Operator */
+        .codehilite .p { color: #ffffff; font-weight: bold } /* Punctuation */
+        .codehilite .kc { color: #ffffff; font-weight: bold } /* Keyword.Constant */
+        .codehilite .kd { color: #ffffff; font-weight: bold } /* Keyword.Declaration */
+        .codehilite .kn { color: #ffffff; font-weight: bold } /* Keyword.Namespace */
+        .codehilite .kp { color: #ffffff; font-weight: bold } /* Keyword.Pseudo */
+        .codehilite .kr { color: #ffffff; font-weight: bold } /* Keyword.Reserved */
+        .codehilite .kt { color: #ffffff; font-weight: bold } /* Keyword.Type */
+        .codehilite .ow { color: #ffffff; font-weight: bold } /* Operator.Word */
+        .codehilite .pm { color: #ffffff; font-weight: bold } /* Punctuation.Marker */
+        .codehilite .w { color: #c0c0c0 } /* Text.Whitespace */
+    </style>
+</head>
+<body>
+
+<h1>Configuring computer names within a LAN</h1>
+
+<p><i>Configuring computer names within a LAN</i></p>
+
+<p>I recently bought a Raspberry Pi and I wanted to be able to SSH into it. The
+problem is - what's its IP address?</p>
+<h2>Solution 1 - ifconfig</h2>
+<p>If I have a monitor/keyboard attached to the Pi, then I can run <code>ifconfig</code> and it produces output like:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">wlan0</span><span class="o">:</span><span class="w"> </span><span class="n">flags</span><span class="o">=</span><span class="mi">4163</span><span class="o">&lt;</span><span class="n">UP</span><span class="o">,</span><span class="n">BROADCAST</span><span class="o">,</span><span class="n">RUNNING</span><span class="o">,</span><span class="n">MULTICAST</span><span class="o">&gt;</span><span class="w">  </span><span class="n">mtu</span><span class="w"> </span><span class="mi">1500</span>
+<span class="w">        </span><span class="n">inet</span><span class="w"> </span><span class="mf">192.168</span><span class="o">.</span><span class="mf">7.207</span><span class="w">  </span><span class="n">netmask</span><span class="w"> </span><span class="mf">255.255</span><span class="o">.</span><span class="mf">252.0</span><span class="w">  </span><span class="n">broadcast</span><span class="w"> </span><span class="mf">192.168</span><span class="o">.</span><span class="mf">7.255</span>
+<span class="w">        </span><span class="n">inet6</span><span class="w"> </span><span class="n">fe80</span><span class="o">::</span><span class="n">da3a</span><span class="o">:</span><span class="n">ddff</span><span class="o">:</span><span class="n">fe45</span><span class="o">:</span><span class="mi">863</span><span class="n">f</span><span class="w">  </span><span class="n">prefixlen</span><span class="w"> </span><span class="mi">64</span><span class="w">  </span><span class="n">scopeid</span><span class="w"> </span><span class="mh">0x20</span><span class="o">&lt;</span><span class="n">link</span><span class="o">&gt;</span>
+<span class="w">        </span><span class="n">ether</span><span class="w"> </span><span class="n">d8</span><span class="o">:</span><span class="mi">3</span><span class="n">a</span><span class="o">:</span><span class="n">dd</span><span class="o">:</span><span class="mi">45</span><span class="o">:</span><span class="mi">86</span><span class="o">:</span><span class="mi">3</span><span class="n">f</span><span class="w">  </span><span class="n">txqueuelen</span><span class="w"> </span><span class="mi">1000</span><span class="w">  </span><span class="o">(</span><span class="n">Ethernet</span><span class="o">)</span>
+<span class="w">        </span><span class="n">RX</span><span class="w"> </span><span class="n">packets</span><span class="w"> </span><span class="mi">78677</span><span class="w">  </span><span class="n">bytes</span><span class="w"> </span><span class="mi">46740811</span><span class="w"> </span><span class="o">(</span><span class="mf">44.5</span><span class="w"> </span><span class="n">MiB</span><span class="o">)</span>
+<span class="w">        </span><span class="n">RX</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">dropped</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">overruns</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">frame</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">        </span><span class="n">TX</span><span class="w"> </span><span class="n">packets</span><span class="w"> </span><span class="mi">10826</span><span class="w">  </span><span class="n">bytes</span><span class="w"> </span><span class="mi">1248499</span><span class="w"> </span><span class="o">(</span><span class="mf">1.1</span><span class="w"> </span><span class="n">MiB</span><span class="o">)</span>
+<span class="w">        </span><span class="n">TX</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">dropped</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">overruns</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">carrier</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">collisions</span><span class="w"> </span><span class="mi">0</span>
+</code></pre></div>
+
+<p>That means I can SSH into <code>192.168.7.207</code>. This works, but it has a huge
+drawback: the IP address can change, so I need to attach a monitor/keyboard.
+This kind of obviates the need for SSH. It also produces SSH warning messages
+each time the IP address changes.</p>
+<h2>Solution 2 - pinning the IP address in my router</h2>
+<p>I use a EERO router, which has software which allows me to pin specific devices
+to specific IP addresses. So I can pin my PI to <code>192.168.7.207</code>. I don't like
+to remember a sequence of numbers, so I add an entry to my <code>/etc/hosts</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="mf">192.168.7.207</span><span class="w"> </span><span class="n">raspberry</span><span class="o">-</span><span class="n">pi</span>
+</code></pre></div>
+
+<p>Now I can disconnect my monitor/keyboard and <code>ssh raspberry-pi</code>. But there are still some drawbacks:</p>
+<ol>
+<li>
+<p>I need to configure the pinned IP address in some proprietary router
+   software. If I change my router, I'll need to redo this work.</p>
+</li>
+<li>
+<p>I need to configure <code>/etc/hosts</code> on any device I use to ssh to
+   <code>raspberry-pi</code>. If I ever need to change these addresses, it'll be a pain to
+   track them all down.</p>
+</li>
+</ol>
+<h2>Solution 3 - multicast DNS</h2>
+<p>This is my current solution, and I'm quite happy with it. I can configure my
+raspberry-pi to publish its name via <a href="https://en.wikipedia.org/wiki/Multicast_DNS">Multicast
+DNS</a> (aka mDNS). The software to do this for
+Linux is <a href="https://avahi.org/">Avahi</a>. On NixOS this can be setup as follows:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nx">networking</span><span class="p">.</span><span class="nx">hostName</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;raspberry-pi&quot;</span><span class="p">;</span>
+
+<span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nx">Enable</span><span class="w"> </span><span class="nx">LAN</span><span class="w"> </span><span class="nx">hostname</span><span class="w"> </span><span class="nx">resolution</span><span class="w"> </span><span class="p">(</span><span class="nx">so</span><span class="w"> </span><span class="nx">other</span><span class="w"> </span><span class="nx">machines</span><span class="w"> </span><span class="nx">on</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">same</span><span class="w"> </span><span class="nx">LAN</span><span class="w"> </span><span class="nx">can</span><span class="w"> </span><span class="nx">find</span>
+<span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nx">this</span><span class="w"> </span><span class="nx">one</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">services</span><span class="p">.</span><span class="nx">avahi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">enable</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">      </span><span class="nx">nssmdns</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">      </span><span class="nx">publish</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">enable</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">        </span><span class="nx">addresses</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">        </span><span class="nx">domain</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">        </span><span class="nx">hinfo</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">        </span><span class="nx">userServices</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">        </span><span class="nx">workstation</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">      </span><span class="p">};</span>
+<span class="w">  </span><span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>With mDNS I can ssh into my Pi with <code>ssh raspberry-pi.local</code>. Any machine on
+the same LAN can resolve this address. I don't need any external configuration.</p>
+
+<br>
+
+<p>
+    If you enjoyed this post, please let me know on
+    <a href="https://twitter.com/tommulcahy">Twitter</a>
+    or
+    <a href="https://androiddev.social/@tcm">Mastodon</a>.
+</p>
+
+<p>
+    <i>Posted December 29, 2023.</i>
+</p>
+<p>
+    <i>Tags:</i> <a href="/tags/linux.html">#linux</a>
+</p>
+
+<div class="navbar">
+    <a href="/">Index</a>
+    <a href="/rss.xml">RSS</a>
+    <a href="/about.html">About</a>
+</div>
+
+</body>
+</html>

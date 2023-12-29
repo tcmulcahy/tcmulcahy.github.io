@@ -8,6 +8,14 @@
     <language>en-us</language>
 
     <item>
+        <title>Configuring computer names within a LAN</title>
+        <link>https://mulcahy.ca/posts/configuring-computer-names-within-a-lan.html</link>
+        <description>Configuring computer names within a LAN</description>
+        <pubDate>2023-12-29 11:29:34</pubDate>
+        <guid isPermaLink="true">posts/configuring-computer-names-within-a-lan.html</guid>
+     </item>
+
+     <item>
         <title>Avoiding shell double-evaluation</title>
         <link>https://mulcahy.ca/posts/avoiding-shell-double-evaluation.html</link>
         <description>How to avoid double-evaluating commands in ssh / adb shell / etc.</description>

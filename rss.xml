@@ -8,14 +8,6 @@
     <language>en-us</language>
 
     <item>
-        <title>screenrecord one-liner</title>
-        <link>https://mulcahy.ca/posts/screenrecord-one-liner.html</link>
-        <description>How to quickly capture a screen recording from your Android device</description>
-        <pubDate>2024-03-05 18:37:17</pubDate>
-        <guid isPermaLink="true">posts/screenrecord-one-liner.html</guid>
-     </item>
-
-     <item>
         <title>Configuring computer names within a LAN</title>
         <link>https://mulcahy.ca/posts/configuring-computer-names-within-a-lan.html</link>
         <description>How to publish a computer name to Multicast DNS</description>

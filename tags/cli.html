@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple password generator in Python</title>
+    <title>#cli</title>
     <style>
         .navbar {
             display: flex;
@@ -96,50 +96,16 @@
     </style>
 </head>
 <body>
-
-<h1>Simple password generator in Python</h1>
-
-<p><i>3 line Python script for generating secure passwords</i></p>
-
-<p>Sometimes I need a password and I don't have a good way to generate one. Maybe
-it's a website and Chrome isn't auto-suggesting a password. Maybe it's not a
-website. Whatever the situation, here's a simple Python script I use to
-generate a secure password.</p>
-<div class="codehilite"><pre><span></span><code><span class="ch">#!/usr/bin/env python3</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">secrets</span>
-
-<span class="c1"># These characters are easily distinguishable, and they don&#39;t count as</span>
-<span class="c1"># separators in iTerm, so you can double-click to copy/paste</span>
-<span class="n">alphabet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz~_-+./&#39;</span>
-<span class="k">assert</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">alphabet</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">64</span>
-
-<span class="c1"># log2(64) == 6, so we get 6 bits per char, so 11 chars gives us 66 bits of</span>
-<span class="c1"># randomness</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">secrets</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">alphabet</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="mi">11</span><span class="p">)))</span>
-</code></pre></div>
-
-<p>This is basically just 3 lines of code (plus comments/assertions) so I
-think it's easy enough to analyze for correctness. It uses
-<a href="https://docs.python.org/3/library/secrets.html">secrets</a> as a source for
-secure randomness.</p>
+<h1>#cli</h1>
+<div class="post-list">
+    <div class="post-entry">
+        <span class="post-date">Dec '24</span>
+        <span class="post-title"><a href="../posts/clis-with-updating-statuses.html">CLIs with updating statuses</a></span>
+        <span class="post-tags"><a href="/tags/cli.html">#cli</a></span>
+    </div>
+</div>
 
 <br>
-
-<p>
-    If you enjoyed this post, please let me know on
-    <a href="https://twitter.com/tommulcahy">Twitter</a>
-    or
-    <a href="https://androiddev.social/@tcm">Mastodon</a>.
-</p>
-
-<p>
-    <i>Posted November 18, 2023.</i>
-</p>
-<p>
-    <i>Tags:</i> <a href="/tags/python.html">#python</a>
-</p>
-
 <div class="navbar">
     <a href="/">Index</a>
     <a href="/rss.xml">RSS</a>

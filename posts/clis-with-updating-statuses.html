@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLIs with updating statuses</title>
+    <style>
+        .navbar {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding-top: 0.5em;
+            padding-bottom: 0.5em;
+        }
+
+        .post-list {
+            width: 100%;
+        }
+
+        .post-entry {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5em 0;
+        }
+
+        .post-date {
+            flex: 0 0 4em;
+            text-align: left;
+        }
+
+        .post-title {
+            flex: 1;
+            margin-left: 1em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .post-tags {
+            flex: 0 0 10em;
+            text-align: right;
+            margin-left: auto; /* push text to the right */
+        }
+
+        body {
+            background-color: black; /* Dark background */
+            color: white;            /* Light text */
+            padding: 20px;  /* Adjust this value as needed */
+            margin: 0 auto;  /* Removes default margin, centers content if the viewport is too wide */
+            max-width: 60em;
+        }
+
+        /* Regular links */
+        a {
+            color: #1E90FF; /* Bright Blue */
+            text-decoration: none; /* Removing the underline, but this is optional */
+            transition: color 0.3s ease; /* Smooth transition for hover effects */
+        }
+
+        /* Visited links */
+        a:visited {
+            color: #9370DB; /* Medium Purple */
+        }
+
+        /* Hover state */
+        a:hover {
+            color: #FFD700; /* Golden for a subtle highlight */
+            text-decoration: underline; /* Underlining on hover for clarity */
+        }
+
+        /* Active state (when the link is being clicked) */
+        a:active {
+            color: #FF4500; /* Orange-Red for a brief moment when clicked */
+        }
+
+        /* minimalist pygments */
+        pre { line-height: 125%; }
+        td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+        span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+        td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+        span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+        .codehilite .hll { background-color: #ffffcc }
+        .codehilite { background: #171717; color: #e0e0e0 }
+        .codehilite .k { color: #ffffff; font-weight: bold } /* Keyword */
+        .codehilite .o { color: #ffffff; font-weight: bold } /* Operator */
+        .codehilite .p { color: #ffffff; font-weight: bold } /* Punctuation */
+        .codehilite .kc { color: #ffffff; font-weight: bold } /* Keyword.Constant */
+        .codehilite .kd { color: #ffffff; font-weight: bold } /* Keyword.Declaration */
+        .codehilite .kn { color: #ffffff; font-weight: bold } /* Keyword.Namespace */
+        .codehilite .kp { color: #ffffff; font-weight: bold } /* Keyword.Pseudo */
+        .codehilite .kr { color: #ffffff; font-weight: bold } /* Keyword.Reserved */
+        .codehilite .kt { color: #ffffff; font-weight: bold } /* Keyword.Type */
+        .codehilite .ow { color: #ffffff; font-weight: bold } /* Operator.Word */
+        .codehilite .pm { color: #ffffff; font-weight: bold } /* Punctuation.Marker */
+        .codehilite .w { color: #c0c0c0 } /* Text.Whitespace */
+    </style>
+</head>
+<body>
+
+<h1>CLIs with updating statuses</h1>
+
+<p><i>Different methods for updating statuses inside a CLI</i></p>
+
+<p>I still often prefer Command-Line Interfaces (CLIs) over GUIs. I will
+distinguish between a CLI and a Textual User Interface (TUI). A true CLI takes
+all of its input as command-line arguments and possibly <code>stdin</code>. But if it does
+read from <code>stdin</code>, that input should be interpreted as a single block, rather
+than as responses to <code>stdout</code>/<code>stderr</code>. CLIs are stateless, as opposed to TUIs
+and GUIs that interpret input depending on their state at the time input is
+received. You can copy/paste a command-line and get (mostly) the same behavior,
+without having to memorize which elements of the GUI to click on.</p>
+<p>Traditionally, diagnostic information, like progress updates, are written to
+<code>stderr</code>. Actual results are written to <code>stdout</code>. The diagnostics of the
+simplest CLIs consist of purely visible characters, which present a tradeoff:
+With what frequency should progress updates be written? Infrequent updates
+force the user to wait. Frequent updates create a wall of unimportant messages
+that potentially obscure more important warnings and errors.</p>
+<p>I prefer CLIs that continuously update their status. The way to implement such
+updates is rather interesting.  Proper TUIs accomplish status updates by
+maintaining a buffer and synchronizing the terminal display to this buffer, but
+doing so conflicts with the terminal's scrollback. You can't have status
+updates in the right place as the user is scrolling back. Terminal APIs allow
+you to write to particular locations on screen, but you can't read what was
+previously in those locations. You can't detect scrolling. You can't write to
+particular locations within the scrollback buffer.</p>
+<p>The mechanism for CLIs with updating statuses dates back at least 150 years to
+the first commercially successful typewriter - the <a href="https://en.wikipedia.org/wiki/Sholes_and_Glidden_typewriter">Sholes and Glidden
+typewriter</a> -
+which used a <a href="https://en.wikipedia.org/wiki/Carriage_return">carriage return</a>
+lever to move the carriage back to the left side of the paper after typing a
+line of text. Moving to the left without moving down was used to write text
+on-top of existing text, allowing for special effects like strikethrough,
+underline, or bold. When carriage return was adapted to teletype machines it
+replaced existing characters rather than writing on-top of them, and this
+behavior carries forward to TTY terminals (and emulators) today.</p>
+<p>This carriage-return replacement forms the basis for CLIs to provide updating
+statuses, but these days it's slightly easier with ANSI escape codes. With
+carriage-returns you need to print spaces to erase each previously printed
+character. If you don't know how many characters were previously printed you
+can query the terminal size with the ioctl TIOCGWINSZ, take the width, and then
+print that many spaces. With ANSI escape codes you can just print "\033[2K" to
+clear the entire line. To clear multiple lines you can repeatedly move the
+cursor up with "\033[F" and then clear each line.</p>
+<p>A common problem when implementing updating statuses is you don't know if
+something else has written to the terminal since you last updated the status.
+If you blindly attempt to erase the last status you may instead erase an
+important error/warning written to the console. It'd be quite convenient if you
+could query the characters in the terminal, but unfortunately this isn't
+possible (as far as I can tell). TUI-style libraries, such as curses, emulate this
+by maintaining a buffer of the desired terminal contents and repeatedly
+synchronizing it to the actual terminal.</p>
+<p>I reason that the inability to query a character at a particular position is
+the textual equivalent of the GPU readback problem. In the graphics world,
+attempting to read a pixel output from the GPU requires waiting for the GPU
+pipeline to flush, which introduces high latency. In the text world, your terminal
+might be on a different computer, so reading a character at a particular
+position would require a network roundtrip.</p>
+<p>It's quite interesting that you can successfully read the terminal size. This
+doesn't require a network roundtrip because whenever the size of the terminal
+changes the ssh client detects the change via SIGWINCH and then forwards it to
+the sshd server which communicates it to the kernel with TIOCSWINSZ. This
+works, but imperfectly. You may write characters to the terminal before you
+find out that the terminal size has just changed. Usually this lack of true
+synchronization creates some minor artifacts - maybe the status is displayed
+incorrectly until the server receives the window size update and issues a new
+status update.</p>
+<p>Could similar tricks be played to keep the server informed about the contents
+of the entire scrollback buffer? It'd be far more complex - maybe to the point
+of being impractical. The sshd server would need to understand <em>exactly</em> how
+the terminal interpreted each escape code.</p>
+<p>In the absence of readback, how can you ensure that nothing else writes to the
+terminal in between status updates? In some sense, this is truly impossible.
+Your program may have been invoked from within another program that is also
+writing to the terminal simultaneously. But this is arguably a bug in the
+calling program, so we'll set this aside.</p>
+<p>In small scripts you can just carefully avoid writing to the terminal. In
+larger scripts you can redirect output to prevent accidentally writing to the
+terminal. With a language like Python you can temporarily set
+<code>sys.stdout</code>/<code>sys.stderr</code> to different objects satisfying the TextIO interface.
+This will catch most accidental writes, but it's still possible to write to
+<code>stdout</code>/<code>stderr</code> directly with file descriptors 1/2. A more complete
+redirection is possible at the file descriptor level with <code>dup2</code>. File
+descriptors are handles, so they operate much like pointers. Conceptually
+<code>dup2</code> allows you to "dereference" the file descriptor and "point" it somewhere
+else.</p>
+<p>These mechanisms mostly work, but expose edge cases and require careful coding
+to avoid nasty bugs. If you have some code that expects <code>stderr</code> to be connected
+to a TTY it may cause issues when you temporarily redirect <code>stderr</code>.  And if
+you don't properly restore <code>stderr</code> you won't be able to see the traceback
+normally printed when your program crashes. This is a nasty bug because you may
+not even realize there is a problem. </p>
+<p>I think the best solution is to consolidate status updates to a tiny process
+that parses output from other processes. If those other processes wish to issue
+status updates, they can use a special line prefix. This approach means other
+processes see <code>stdout</code>/<code>stderr</code> as being disconnected from a terminal, but I'd
+argue this is preferable since the root issue stems from multiple programs
+attempting to interact with a terminal simultaneously.</p>
+
+<br>
+
+<p>
+    If you enjoyed this post, please let me know on
+    <a href="https://twitter.com/tommulcahy">Twitter</a>
+    or
+    <a href="https://androiddev.social/@tcm">Mastodon</a>.
+</p>
+
+<p>
+    <i>Posted December 22, 2024.</i>
+</p>
+<p>
+    <i>Tags:</i> <a href="/tags/cli.html">#cli</a>
+</p>
+
+<div class="navbar">
+    <a href="/">Index</a>
+    <a href="/rss.xml">RSS</a>
+    <a href="/about.html">About</a>
+</div>
+
+</body>
+</html>

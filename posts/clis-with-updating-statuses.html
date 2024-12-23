@@ -173,8 +173,8 @@ terminal in between status updates? In some sense, this is truly impossible.
 Your program may have been invoked from within another program that is also
 writing to the terminal simultaneously. But this is arguably a bug in the
 calling program, so we'll set this aside.</p>
-<p>In small scripts you can just carefully avoid writing to the terminal. In
-larger scripts you can redirect output to prevent accidentally writing to the
+<p>In small scripts you can carefully avoid writing to the terminal. In larger
+scripts you can redirect output to prevent accidentally writing to the
 terminal. With a language like Python you can temporarily set
 <code>sys.stdout</code>/<code>sys.stderr</code> to different objects satisfying the TextIO interface.
 This will catch most accidental writes, but it's still possible to write to

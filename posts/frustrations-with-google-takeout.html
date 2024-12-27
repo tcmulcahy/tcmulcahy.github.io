@@ -5,12 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Frustrations with Google Takeout</title>
     <style>
+        :root {
+            /* Light Mode */
+            --background-color: white;
+            --text-color: black;
+            --link-color: blue;
+            --visited-link-color: purple;
+            --hover-link-color: darkorange;
+            --active-link-color: red;
+
+            /* Post Entries */
+            --post-date-color: gray;
+            --post-title-color: black;
+            --post-tags-color: blue;
+
+            /* Code Block */
+            --code-background: #f5f5f5;
+            --code-text: #333333;
+            --code-keyword: #0000ff;
+            --code-operator: #000000;
+            --code-punctuation: #333333;
+            --code-special-bg: #ffffc0;
+            --code-special-text: #000000;
+            --code-highlight-line: #ffffcc;
+            --code-whitespace: #c0c0c0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                /* Dark Mode */
+                --background-color: black;
+                --text-color: white;
+                --link-color: #1E90FF;
+                --visited-link-color: #9370DB;
+                --hover-link-color: #FFD700;
+                --active-link-color: #FF4500;
+
+                /* Post Entries */
+                --post-date-color: #cccccc;
+                --post-title-color: white;
+                --post-tags-color: #1E90FF;
+
+                /* Code Block */
+                --code-background: #171717;
+                --code-text: #e0e0e0;
+                --code-keyword: #ffffff;
+                --code-operator: #ffffff;
+                --code-punctuation: #ffffff;
+                --code-special-bg: #ffffc0;
+                --code-special-text: #000000;
+                --code-highlight-line: #ffffcc;
+                --code-whitespace: #c0c0c0;
+            }
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 20px;
+            margin: 0 auto;
+            max-width: 60em;
+        }
+
         .navbar {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-            padding-top: 0.5em;
-            padding-bottom: 0.5em;
+            padding: 0.5em;
         }
 
         .post-list {
@@ -25,12 +86,12 @@
         }
 
         .post-date {
-            flex: 0 0 4em;
+            color: var(--post-date-color);
             text-align: left;
         }
 
         .post-title {
-            flex: 1;
+            color: var(--post-title-color);
             margin-left: 1em;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -42,57 +103,57 @@
             margin-left: auto; /* push text to the right */
         }
 
-        body {
-            background-color: black; /* Dark background */
-            color: white;            /* Light text */
-            padding: 20px;  /* Adjust this value as needed */
-            margin: 0 auto;  /* Removes default margin, centers content if the viewport is too wide */
-            max-width: 60em;
-        }
-
-        /* Regular links */
         a {
-            color: #1E90FF; /* Bright Blue */
-            text-decoration: none; /* Removing the underline, but this is optional */
-            transition: color 0.3s ease; /* Smooth transition for hover effects */
+            color: var(--link-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
         }
 
-        /* Visited links */
         a:visited {
-            color: #9370DB; /* Medium Purple */
+            color: var(--visited-link-color);
         }
 
-        /* Hover state */
         a:hover {
-            color: #FFD700; /* Golden for a subtle highlight */
-            text-decoration: underline; /* Underlining on hover for clarity */
+            color: var(--hover-link-color);
+            text-decoration: underline;
         }
 
-        /* Active state (when the link is being clicked) */
         a:active {
-            color: #FF4500; /* Orange-Red for a brief moment when clicked */
+            color: var(--active-link-color);
         }
 
-        /* minimalist pygments */
-        pre { line-height: 125%; }
-        td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
-        span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
-        td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
-        span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
-        .codehilite .hll { background-color: #ffffcc }
-        .codehilite { background: #171717; color: #e0e0e0 }
-        .codehilite .k { color: #ffffff; font-weight: bold } /* Keyword */
-        .codehilite .o { color: #ffffff; font-weight: bold } /* Operator */
-        .codehilite .p { color: #ffffff; font-weight: bold } /* Punctuation */
-        .codehilite .kc { color: #ffffff; font-weight: bold } /* Keyword.Constant */
-        .codehilite .kd { color: #ffffff; font-weight: bold } /* Keyword.Declaration */
-        .codehilite .kn { color: #ffffff; font-weight: bold } /* Keyword.Namespace */
-        .codehilite .kp { color: #ffffff; font-weight: bold } /* Keyword.Pseudo */
-        .codehilite .kr { color: #ffffff; font-weight: bold } /* Keyword.Reserved */
-        .codehilite .kt { color: #ffffff; font-weight: bold } /* Keyword.Type */
-        .codehilite .ow { color: #ffffff; font-weight: bold } /* Operator.Word */
-        .codehilite .pm { color: #ffffff; font-weight: bold } /* Punctuation.Marker */
-        .codehilite .w { color: #c0c0c0 } /* Text.Whitespace */
+        /* Code Blocks */
+        pre {
+            line-height: 125%;
+        }
+
+        .codehilite {
+            background: var(--code-background);
+            color: var(--code-text);
+        }
+
+        .codehilite .k {
+            color: var(--code-keyword);
+            font-weight: bold;
+        }
+
+        .codehilite .o {
+            color: var(--code-operator);
+            font-weight: bold;
+        }
+
+        .codehilite .p {
+            color: var(--code-punctuation);
+            font-weight: bold;
+        }
+
+        .codehilite .hll {
+            background-color: var(--code-highlight-line);
+        }
+
+        .codehilite .w {
+            color: var(--code-whitespace);
+        }
     </style>
 </head>
 <body>

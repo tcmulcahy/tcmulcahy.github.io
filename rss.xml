@@ -8,14 +8,6 @@
     <language>en-us</language>
 
     <item>
-        <title>A Linux groups gotcha</title>
-        <link>https://mulcahy.ca/posts/a-linux-groups-gotcha.html</link>
-        <description>You have to run newgrp after adding yourself to a group</description>
-        <pubDate>2024-12-27 08:26:08</pubDate>
-        <guid isPermaLink="true">posts/a-linux-groups-gotcha.html</guid>
-     </item>
-
-     <item>
         <title>Frustrations with Google Takeout</title>
         <link>https://mulcahy.ca/posts/frustrations-with-google-takeout.html</link>
         <description>Problems I experienced with Google Takeout and how I worked around them</description>

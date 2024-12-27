@@ -8,6 +8,14 @@
     <language>en-us</language>
 
     <item>
+        <title>Frustrations with Google Takeout</title>
+        <link>https://mulcahy.ca/posts/frustrations-with-google-takeout.html</link>
+        <description>Problems I experienced with Google Takeout and how I worked around them</description>
+        <pubDate>2024-12-27 06:08:28</pubDate>
+        <guid isPermaLink="true">posts/frustrations-with-google-takeout.html</guid>
+     </item>
+
+     <item>
         <title>CLIs with updating statuses</title>
         <link>https://mulcahy.ca/posts/clis-with-updating-statuses.html</link>
         <description>Different methods for updating statuses inside a CLI</description>

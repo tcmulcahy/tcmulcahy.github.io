@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index</title>
+    <title>A Linux groups gotcha</title>
     <style>
         :root {
             /* Light Mode */
@@ -157,64 +157,61 @@
     </style>
 </head>
 <body>
-<h1>Index</h1>
-<div class="post-list">
-    <div class="post-entry">
-        <span class="post-date">Dec '24</span>
-        <span class="post-title"><a href="posts/a-linux-groups-gotcha.html">A Linux groups gotcha</a></span>
-        <span class="post-tags"></span>
-    </div>
 
-    <div class="post-entry">
-        <span class="post-date">Dec '24</span>
-        <span class="post-title"><a href="posts/frustrations-with-google-takeout.html">Frustrations with Google Takeout</a></span>
-        <span class="post-tags"><a href="/tags/python.html">#python</a></span>
-    </div>
+<h1>A Linux groups gotcha</h1>
 
-    <div class="post-entry">
-        <span class="post-date">Dec '24</span>
-        <span class="post-title"><a href="posts/clis-with-updating-statuses.html">CLIs with updating statuses</a></span>
-        <span class="post-tags"><a href="/tags/cli.html">#cli</a></span>
-    </div>
+<p><i>You have to log out and log back in after adding yourself to a group</i></p>
 
-    <div class="post-entry">
-        <span class="post-date">Dec '23</span>
-        <span class="post-title"><a href="posts/configuring-computer-names-within-a-lan.html">Configuring computer names within a LAN</a></span>
-        <span class="post-tags"><a href="/tags/linux.html">#linux</a></span>
-    </div>
+<p>Suppose you add yourself to a group with:</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>examplegroup<span class="w"> </span><span class="nv">$USER</span>
+</code></pre></div>
 
-    <div class="post-entry">
-        <span class="post-date">Nov '23</span>
-        <span class="post-title"><a href="posts/avoiding-shell-double-evaluation.html">Avoiding shell double-evaluation</a></span>
-        <span class="post-tags"><a href="/tags/shell.html">#shell</a></span>
-    </div>
+<p>You might expect that you can immediately view all files with the new
+permissions afforded to you by your membership in <code>examplegroup</code>. Alas, no. 
+Your group memberships are cached in your session. To see what groups you are
+effectively a part of (for the current session) with:</p>
+<div class="codehilite"><pre><span></span><code>id
+</code></pre></div>
 
-    <div class="post-entry">
-        <span class="post-date">Nov '23</span>
-        <span class="post-title"><a href="posts/better-multiline-string-templates.html">Better multiline string templates</a></span>
-        <span class="post-tags"><a href="/tags/misc.html">#misc</a></span>
-    </div>
+<p>To see what groups you're in globally (as stored in /etc/group), use:</p>
+<div class="codehilite"><pre><span></span><code>groups<span class="w"> </span><span class="nv">$USER</span>
+</code></pre></div>
 
-    <div class="post-entry">
-        <span class="post-date">Nov '23</span>
-        <span class="post-title"><a href="posts/clearing-the-terminal-scrollback.html">Clearing the terminal scrollback</a></span>
-        <span class="post-tags"><a href="/tags/shell.html">#shell</a>, <a href="/tags/cli.html">#cli</a></span>
-    </div>
+<p>You can "remove" yourself from a group with:</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>gpasswd<span class="w"> </span>--delete<span class="w"> </span><span class="nv">$USER</span><span class="w"> </span>examplegroup
+</code></pre></div>
 
-    <div class="post-entry">
-        <span class="post-date">Nov '23</span>
-        <span class="post-title"><a href="posts/simple-password-generator-in-python.html">Simple password generator in Python</a></span>
-        <span class="post-tags"><a href="/tags/python.html">#python</a></span>
-    </div>
+<p>but you'll still have permissions associated with examplegroup (due to the session cache).</p>
+<p>The easiest way to update your effective groups is to log out and log back in.
+If you want to make sure there aren't any processes around with the stale
+groups info, you can kill them all:</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>pkill<span class="w"> </span>-u<span class="w"> </span><span class="nv">$USER</span>
+</code></pre></div>
 
-    <div class="post-entry">
-        <span class="post-date">Sep '23</span>
-        <span class="post-title"><a href="posts/logcat-package.html">logcat, but just one package</a></span>
-        <span class="post-tags"><a href="/tags/android.html">#android</a></span>
-    </div>
-</div>
+<p>If you just added yourself to a new group, you can update your membership in that group with:</p>
+<div class="codehilite"><pre><span></span><code>newgrp<span class="w"> </span>examplegroup
+</code></pre></div>
+
+<p>However, it has side-effects. It starts a new shell, and changes the current real
+group ID to the specified group, meaning any files you create will be
+associated with that group. So I think it's better to log out and log back in.</p>
 
 <br>
+
+<p>
+    If you enjoyed this post, please let me know on
+    <a href="https://twitter.com/tommulcahy">Twitter</a>
+    or
+    <a href="https://androiddev.social/@tcm">Mastodon</a>.
+</p>
+
+<p>
+    <i>Posted December 27, 2024.</i>
+</p>
+<p>
+    <i>Tags:</i> &lt;None&gt;
+</p>
+
 <div class="navbar">
     <a href="/">Index</a>
     <a href="/rss.xml">RSS</a>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index</title>
+    <title>https-enabled subdomain forwarding, with Github Pages</title>
     <style>
         :root {
             /* Light Mode */
@@ -157,70 +157,59 @@
     </style>
 </head>
 <body>
-<h1>Index</h1>
-<div class="post-list">
-    <div class="post-entry">
-        <span class="post-date">Jan '25</span>
-        <span class="post-title"><a href="posts/https-enabled-subdomain-forwarding-with-github-pages.html">https-enabled subdomain forwarding, with Github Pages</a></span>
-        <span class="post-tags"><a href="/tags/web.html">#web</a></span>
-    </div>
 
-    <div class="post-entry">
-        <span class="post-date">Dec '24</span>
-        <span class="post-title"><a href="posts/a-linux-groups-gotcha.html">A Linux groups gotcha</a></span>
-        <span class="post-tags"><a href="/tags/linux.html">#linux</a></span>
-    </div>
+<h1>https-enabled subdomain forwarding, with Github Pages</h1>
 
-    <div class="post-entry">
-        <span class="post-date">Dec '24</span>
-        <span class="post-title"><a href="posts/frustrations-with-google-takeout.html">Frustrations with Google Takeout</a></span>
-        <span class="post-tags"><a href="/tags/python.html">#python</a></span>
-    </div>
+<p><i>How to use Github Pages to forward subdomain traffic</i></p>
 
-    <div class="post-entry">
-        <span class="post-date">Dec '24</span>
-        <span class="post-title"><a href="posts/clis-with-updating-statuses.html">CLIs with updating statuses</a></span>
-        <span class="post-tags"><a href="/tags/cli.html">#cli</a></span>
-    </div>
+<p>I've hosted my blog at Github Pages for over a year, but I didn't realize I
+could also use Github Pages for subdomains. I thought I'd have to manually
+setup Let's Encrypt, so I'd been holding off. However, it turns out GitHub
+Pages makes this really easy—no manual certificate management required!</p>
+<p>Here’s how I set up an HTTPS redirect for one of my subdomains in just a few
+minutes:</p>
+<h2>Step 1 - Add a CNAME entry for the subdomain</h2>
+<p>Via my registrar, I added a CNAME entry for my subdomain pointing to my Github
+Pages URL (<code>USERNAME.github.io</code>). If you’re already hosting your main site on
+GitHub Pages, don’t worry—it’s fine to have multiple CNAME entries for
+different subdomains all pointing to the same URL.</p>
+<h2>Step 2 - Create a subdomain-redirect Github project</h2>
+<p>I created a separate GitHub repository (public, to use the free tier) with a simple index.html file in the root directory to handle the redirect.</p>
+<p>Here’s the content of my index.html:</p>
+<div class="codehilite"><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">http-equiv</span><span class="o">=</span><span class="s">&quot;refresh&quot;</span> <span class="na">content</span><span class="o">=</span><span class="s">&quot;0; url=https://example.com&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Redirecting to <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;https://example.com&quot;</span><span class="p">&gt;</span>https://example.com<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
 
-    <div class="post-entry">
-        <span class="post-date">Dec '23</span>
-        <span class="post-title"><a href="posts/configuring-computer-names-within-a-lan.html">Configuring computer names within a LAN</a></span>
-        <span class="post-tags"><a href="/tags/linux.html">#linux</a></span>
-    </div>
-
-    <div class="post-entry">
-        <span class="post-date">Nov '23</span>
-        <span class="post-title"><a href="posts/avoiding-shell-double-evaluation.html">Avoiding shell double-evaluation</a></span>
-        <span class="post-tags"><a href="/tags/shell.html">#shell</a></span>
-    </div>
-
-    <div class="post-entry">
-        <span class="post-date">Nov '23</span>
-        <span class="post-title"><a href="posts/better-multiline-string-templates.html">Better multiline string templates</a></span>
-        <span class="post-tags"><a href="/tags/misc.html">#misc</a></span>
-    </div>
-
-    <div class="post-entry">
-        <span class="post-date">Nov '23</span>
-        <span class="post-title"><a href="posts/clearing-the-terminal-scrollback.html">Clearing the terminal scrollback</a></span>
-        <span class="post-tags"><a href="/tags/shell.html">#shell</a>, <a href="/tags/cli.html">#cli</a></span>
-    </div>
-
-    <div class="post-entry">
-        <span class="post-date">Nov '23</span>
-        <span class="post-title"><a href="posts/simple-password-generator-in-python.html">Simple password generator in Python</a></span>
-        <span class="post-tags"><a href="/tags/python.html">#python</a></span>
-    </div>
-
-    <div class="post-entry">
-        <span class="post-date">Sep '23</span>
-        <span class="post-title"><a href="posts/logcat-package.html">logcat, but just one package</a></span>
-        <span class="post-tags"><a href="/tags/android.html">#android</a></span>
-    </div>
-</div>
+<h2>Step 3 - Configure the Github project to use the subdomain</h2>
+<p>Under <strong>Settings</strong> -&gt; <strong>Pages</strong>, I selected the main branch as the source for the Pages
+site. Then, under <strong>Custom Domain</strong>, I specified my subdomain (e.g.
+<code>sub.example.com</code>).  After saving, GitHub automatically provisioned an SSL
+certificate using <a href="https://letsencrypt.org/">Let’s Encrypt</a>.</p>
+<p>Within a minute, my HTTPS redirect was up and running!</p>
 
 <br>
+
+<p>
+    If you enjoyed this post, please let me know on
+    <a href="https://twitter.com/tommulcahy">Twitter</a>
+    or
+    <a href="https://androiddev.social/@tcm">Mastodon</a>.
+</p>
+
+<p>
+    <i>Posted January 05, 2025.</i>
+</p>
+<p>
+    <i>Tags:</i> <a href="/tags/web.html">#web</a>
+</p>
+
 <div class="navbar">
     <a href="/">Index</a>
     <a href="/rss.xml">RSS</a>

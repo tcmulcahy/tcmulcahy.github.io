@@ -8,6 +8,14 @@
     <language>en-us</language>
 
     <item>
+        <title>https-enabled subdomain forwarding, with Github Pages</title>
+        <link>https://mulcahy.ca/posts/https-enabled-subdomain-forwarding-with-github-pages.html</link>
+        <description>How to use Github Pages to forward subdomain traffic</description>
+        <pubDate>2025-01-05 07:54:02</pubDate>
+        <guid isPermaLink="true">posts/https-enabled-subdomain-forwarding-with-github-pages.html</guid>
+     </item>
+
+     <item>
         <title>A Linux groups gotcha</title>
         <link>https://mulcahy.ca/posts/a-linux-groups-gotcha.html</link>
         <description>You have to log out and log back in after adding yourself to a group</description>

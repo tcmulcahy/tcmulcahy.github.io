@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avoiding shell double-evaluation</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Avoiding shell double-evaluation</title>
+<style>
         :root {
             /* Light Mode */
             --background-color: white;
@@ -122,6 +123,41 @@
             color: var(--active-link-color);
         }
 
+        .anchor-symbol {
+          font-family: sans-serif; /* Or another common set */
+          position: absolute;
+          left: 0; /* Position at the header's left edge */
+          transform: translateX(-100%); /* Shift it just left of that edge */
+          visibility: hidden; /* Hidden by default */
+          text-decoration: none;
+          color: inherit; /* Match the header text color */
+          font-size: 0.9em; /* Adjust size if desired */
+          line-height: 1; /* Helps vertically center icon with text */
+        }
+
+        h1:hover .anchor-symbol,
+        h2:hover .anchor-symbol,
+        h3:hover .anchor-symbol,
+        h4:hover .anchor-symbol,
+        h5:hover .anchor-symbol,
+        h6:hover .anchor-symbol {
+          visibility: visible;
+          text-decoration: none;
+        }
+
+        .heading-link,
+        .heading-link:visited,
+        .heading-link:hover,
+        .heading-link:active,
+        .heading-link:focus {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+          position: relative;
+        }
+
         /* Code Blocks */
         pre {
             line-height: 125%;
@@ -157,33 +193,27 @@
     </style>
 </head>
 <body>
-
 <h1>Avoiding shell double-evaluation</h1>
-
 <p><i>How to avoid double-evaluating commands in ssh / adb shell / etc.</i></p>
-
 <p>I like to use the following <code>echo-args.sh</code> script to debug shell
 double-evaluation problems:</p>
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/sh</span>
 
 <span class="k">for</span><span class="w"> </span>arg<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="nv">$arg</span><span class="s2">&quot;</span><span class="se">\&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="se">\"</span><span class="s2">"</span><span class="nv">$arg</span><span class="s2">"</span><span class="se">\"</span>
 <span class="k">done</span>
 </code></pre></div>
-
 <p>You can then push this to an android device:</p>
 <div class="codehilite"><pre><span></span><code>$<span class="w"> </span>chmod<span class="w"> </span>u+x<span class="w"> </span>echo-args.sh
 $<span class="w"> </span>adb<span class="w"> </span>push<span class="w"> </span>/data/local/tmp/
 </code></pre></div>
-
 <p>And run it like so:</p>
-<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>./echo-args.sh<span class="w"> </span><span class="s1">&#39;hello world&#39;</span>
-<span class="s2">&quot;hello world&quot;</span>
-$<span class="w"> </span>adb<span class="w"> </span>shell<span class="w"> </span>/data/local/tmp/echo-args.sh<span class="w"> </span><span class="s1">&#39;hello world&#39;</span>
-<span class="s2">&quot;hello&quot;</span>
-<span class="s2">&quot;world&quot;</span>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>./echo-args.sh<span class="w"> </span><span class="s1">'hello world'</span>
+<span class="s2">"hello world"</span>
+$<span class="w"> </span>adb<span class="w"> </span>shell<span class="w"> </span>/data/local/tmp/echo-args.sh<span class="w"> </span><span class="s1">'hello world'</span>
+<span class="s2">"hello"</span>
+<span class="s2">"world"</span>
 </code></pre></div>
-
 <p>And here lies the problem. When we run a command with <code>adb shell</code> (or <code>ssh</code>) it
 gets double-evaluated - once by our current shell, and once by the shell on the
 device. Sometimes this might be what you want. e.g. You might want to evaluated
@@ -196,47 +226,39 @@ pass arguments with spaces.</p>
 <span class="w">  </span><span class="nv">shell</span><span class="o">=</span><span class="nv">$1</span>
 <span class="w">  </span><span class="nb">shift</span>
 
-<span class="w">  </span><span class="nv">$shell</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">printf</span><span class="w"> </span><span class="s2">&quot; %q&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">  </span><span class="nv">$shell</span><span class="w"> </span><span class="s2">"</span><span class="k">$(</span><span class="nb">printf</span><span class="w"> </span><span class="s2">" %q"</span><span class="w"> </span><span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span><span class="k">)</span><span class="s2">"</span>
 <span class="o">}</span>
 </code></pre></div>
-
 <p>Usage:</p>
-<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>run-escaped<span class="w"> </span><span class="s1">&#39;adb shell&#39;</span><span class="w"> </span>/data/local/tmp/echo-args.sh<span class="w"> </span><span class="s1">&#39;hello world&#39;</span>
-<span class="s2">&quot;hello world&quot;</span>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>run-escaped<span class="w"> </span><span class="s1">'adb shell'</span><span class="w"> </span>/data/local/tmp/echo-args.sh<span class="w"> </span><span class="s1">'hello world'</span>
+<span class="s2">"hello world"</span>
 </code></pre></div>
-
 <p>It also works with <code>ssh</code>:</p>
-<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>run-escaped<span class="w"> </span><span class="s1">&#39;ssh remotebox&#39;</span><span class="w"> </span>echo-args.sh<span class="w"> </span><span class="s1">&#39;hello world&#39;</span>
-<span class="s2">&quot;hello world&quot;</span>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>run-escaped<span class="w"> </span><span class="s1">'ssh remotebox'</span><span class="w"> </span>echo-args.sh<span class="w"> </span><span class="s1">'hello world'</span>
+<span class="s2">"hello world"</span>
 </code></pre></div>
-
 <p>This works by first escaping all of the arguments, after they've been
 evaluated once by the local shell. Then it passes this as a string to the
 remote shell.</p>
 <p>The double-evaluation still happens, but since we escaped our parameters, it's
 as if it didn't happen.</p>
-
-<br>
-
+<br/>
 <p>
     If you enjoyed this post, please let me know on
     <a href="https://twitter.com/tommulcahy">Twitter</a>
     or
     <a href="https://androiddev.social/@tcm">Mastodon</a>.
 </p>
-
 <p>
-    <i>Posted November 22, 2023.</i>
+<i>Posted November 22, 2023.</i>
 </p>
 <p>
-    <i>Tags:</i> <a href="/tags/shell.html">#shell</a>
+<i>Tags:</i> <a href="/tags/shell.html">#shell</a>
 </p>
-
 <div class="navbar">
-    <a href="/">Index</a>
-    <a href="/rss.xml">RSS</a>
-    <a href="/about.html">About</a>
+<a href="/">Index</a>
+<a href="/rss.xml">RSS</a>
+<a href="/about.html">About</a>
 </div>
-
 </body>
 </html>

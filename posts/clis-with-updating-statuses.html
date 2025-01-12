@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CLIs with updating statuses</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CLIs with updating statuses</title>
+<style>
         :root {
             /* Light Mode */
             --background-color: white;
@@ -122,6 +123,41 @@
             color: var(--active-link-color);
         }
 
+        .anchor-symbol {
+          font-family: sans-serif; /* Or another common set */
+          position: absolute;
+          left: 0; /* Position at the header's left edge */
+          transform: translateX(-100%); /* Shift it just left of that edge */
+          visibility: hidden; /* Hidden by default */
+          text-decoration: none;
+          color: inherit; /* Match the header text color */
+          font-size: 0.9em; /* Adjust size if desired */
+          line-height: 1; /* Helps vertically center icon with text */
+        }
+
+        h1:hover .anchor-symbol,
+        h2:hover .anchor-symbol,
+        h3:hover .anchor-symbol,
+        h4:hover .anchor-symbol,
+        h5:hover .anchor-symbol,
+        h6:hover .anchor-symbol {
+          visibility: visible;
+          text-decoration: none;
+        }
+
+        .heading-link,
+        .heading-link:visited,
+        .heading-link:hover,
+        .heading-link:active,
+        .heading-link:focus {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+          position: relative;
+        }
+
         /* Code Blocks */
         pre {
             line-height: 125%;
@@ -157,11 +193,8 @@
     </style>
 </head>
 <body>
-
 <h1>CLIs with updating statuses</h1>
-
 <p><i>Different methods for updating statuses inside a CLI</i></p>
-
 <p>I still often prefer Command-Line Interfaces (CLIs) over GUIs. I will
 distinguish between a CLI and a Textual User Interface (TUI). A true CLI takes
 all of its input as command-line arguments and possibly <code>stdin</code>. But if it does
@@ -256,28 +289,23 @@ status updates, they can use a special line prefix. This approach means other
 processes see <code>stdout</code>/<code>stderr</code> as being disconnected from a terminal, but I'd
 argue this is preferable since the root issue stems from multiple programs
 attempting to interact with a terminal simultaneously.</p>
-
-<br>
-
+<br/>
 <p>
     If you enjoyed this post, please let me know on
     <a href="https://twitter.com/tommulcahy">Twitter</a>
     or
     <a href="https://androiddev.social/@tcm">Mastodon</a>.
 </p>
-
 <p>
-    <i>Posted December 22, 2024.</i>
+<i>Posted December 22, 2024.</i>
 </p>
 <p>
-    <i>Tags:</i> <a href="/tags/cli.html">#cli</a>
+<i>Tags:</i> <a href="/tags/cli.html">#cli</a>
 </p>
-
 <div class="navbar">
-    <a href="/">Index</a>
-    <a href="/rss.xml">RSS</a>
-    <a href="/about.html">About</a>
+<a href="/">Index</a>
+<a href="/rss.xml">RSS</a>
+<a href="/about.html">About</a>
 </div>
-
 </body>
 </html>

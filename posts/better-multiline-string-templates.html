@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Better multiline string templates</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Better multiline string templates</title>
+<style>
         :root {
             /* Light Mode */
             --background-color: white;
@@ -122,6 +123,41 @@
             color: var(--active-link-color);
         }
 
+        .anchor-symbol {
+          font-family: sans-serif; /* Or another common set */
+          position: absolute;
+          left: 0; /* Position at the header's left edge */
+          transform: translateX(-100%); /* Shift it just left of that edge */
+          visibility: hidden; /* Hidden by default */
+          text-decoration: none;
+          color: inherit; /* Match the header text color */
+          font-size: 0.9em; /* Adjust size if desired */
+          line-height: 1; /* Helps vertically center icon with text */
+        }
+
+        h1:hover .anchor-symbol,
+        h2:hover .anchor-symbol,
+        h3:hover .anchor-symbol,
+        h4:hover .anchor-symbol,
+        h5:hover .anchor-symbol,
+        h6:hover .anchor-symbol {
+          visibility: visible;
+          text-decoration: none;
+        }
+
+        .heading-link,
+        .heading-link:visited,
+        .heading-link:hover,
+        .heading-link:active,
+        .heading-link:focus {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+          position: relative;
+        }
+
         /* Code Blocks */
         pre {
             line-height: 125%;
@@ -157,57 +193,49 @@
     </style>
 </head>
 <body>
-
 <h1>Better multiline string templates</h1>
-
 <p><i>Subtle problems with templates in multiline strings and some ways to fix them</i></p>
-
 <p>These days many languages support multiline string templates. Here's what they
 look like in Kotlin:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">val</span><span class="w"> </span><span class="nv">example</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">val</span><span class="w"> </span><span class="nv">example</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"""</span>
 <span class="s">        This</span>
 <span class="s">        is a</span>
 <span class="s">        multiline</span>
 <span class="s">        string.</span>
-<span class="s">    &quot;&quot;&quot;</span>
+<span class="s">    """</span>
 </code></pre></div>
-
 <p>But that will create a multiline with a bunch of spaces at the beginning of each line:</p>
 <div class="codehilite"><pre><span></span><code>        This
         is a
         multiline
         string.
 </code></pre></div>
-
 <p>So I like to use <code>trimIndent</code> to remove these spaces.</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">val</span><span class="w"> </span><span class="nv">example</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">val</span><span class="w"> </span><span class="nv">example</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"""</span>
 <span class="s">        This</span>
 <span class="s">        is a</span>
 <span class="s">        multiline</span>
 <span class="s">        string.</span>
-<span class="s">    &quot;&quot;&quot;</span><span class="p">.</span><span class="na">trimIndent</span><span class="p">()</span>
+<span class="s">    """</span><span class="p">.</span><span class="na">trimIndent</span><span class="p">()</span>
 </code></pre></div>
-
 <p>This works the way I expect:</p>
 <div class="codehilite"><pre><span></span><code>This
 is a
 multiline
 string.
 </code></pre></div>
-
 <p>But problems happen when I combine string templating with trimIndent:</p>
-<div class="codehilite"><pre><span></span><code>val center = &quot;&quot;&quot;
+<div class="codehilite"><pre><span></span><code>val center = """
         is a
         multiline
-    &quot;&quot;&quot;.trimIndent()
+    """.trimIndent()
 
-val example = &quot;&quot;&quot;
+val example = """
         This
         $center
         string.
-    &quot;&quot;&quot;.trimIndent()
+    """.trimIndent()
 </code></pre></div>
-
 <p><code>$center</code> gets expanded to a string consisting of two lines with no
 indentation. The first line is indented because <code>$center</code> itself is indented.
 But the second line is not indented.</p>
@@ -216,42 +244,38 @@ But the second line is not indented.</p>
 multiline
         string.
 </code></pre></div>
-
 <p>If you want a workaround that works in kotlin, try this:</p>
-<div class="codehilite"><pre><span></span><code>val<span class="w"> </span>center<span class="w"> </span>=<span class="w"> </span>&quot;&quot;&quot;
+<div class="codehilite"><pre><span></span><code>val<span class="w"> </span>center<span class="w"> </span>=<span class="w"> </span>"""
 <span class="w">       </span>|is<span class="w"> </span>a
 <span class="w">       </span>|multiline
-<span class="w">    </span>&quot;&quot;&quot;.trimMargin()
+<span class="w">    </span>""".trimMargin()
 
-val<span class="w"> </span>example<span class="w"> </span>=<span class="w"> </span>&quot;&quot;&quot;
+val<span class="w"> </span>example<span class="w"> </span>=<span class="w"> </span>"""
 <span class="w">       </span>|This
-<span class="w">       </span>|<span class="cp">${</span><span class="n">center</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">|&quot;</span><span class="p">)</span><span class="cp">}</span>
+<span class="w">       </span>|<span class="cp">${</span><span class="n">center</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">|"</span><span class="p">)</span><span class="cp">}</span>
 <span class="w">       </span>|string.
-<span class="w">    </span>&quot;&quot;&quot;.trimMargin()
+<span class="w">    </span>""".trimMargin()
 </code></pre></div>
-
 <p>I think the margin character is a little ugly, and the requirement of embedding
 with <code>${center.replace("\n", "\n|")}</code> is quite ugly. Maybe even worse, you can
 use <code>$center</code> and it will actually work - most of the time. The problem happens
 if <code>center</code> contains lines that actually begin with the <code>|</code> character:</p>
-<div class="codehilite"><pre><span></span><code>val center = &quot;&quot;&quot;
+<div class="codehilite"><pre><span></span><code>val center = """
        |is a
        ||multiline beginning with pipe
-    &quot;&quot;&quot;.trimMargin()
+    """.trimMargin()
 
-val example = &quot;&quot;&quot;
+val example = """
        |This
        |$center
        |string.
-    &quot;&quot;&quot;.trimMargin()
+    """.trimMargin()
 </code></pre></div>
-
 <p>Notice that extra <code>|</code> I added in front of <code>multiline</code>? That indicates that the
 line actually does begin with a <code>|</code> character:</p>
 <div class="codehilite"><pre><span></span><code>is a
 |multiline beginning with pipe
 </code></pre></div>
-
 <p>But because I referenced <code>$center</code> directly that leading <code>|</code> gets removed and
 <code>|multiline beginning with pipe</code> turns into <code>multiline beginning with pipe</code>:</p>
 <div class="codehilite"><pre><span></span><code>This
@@ -259,88 +283,79 @@ is a
 multiline beginning with pipe
 string.
 </code></pre></div>
-
 <p>So it works, if you accept some ugliness, and you're careful. I wanted a better
 way. And it turns out I can do it in Scala. I just need to define a custom
 string type:</p>
 <div class="codehilite"><pre><span></span><code>implicit<span class="w"> </span>class<span class="w"> </span>AdjustedMultiline(val<span class="w"> </span>sc:<span class="w"> </span>StringContext)<span class="w"> </span>extends<span class="w"> </span>AnyVal<span class="w"> </span>{
 <span class="w">    </span>def<span class="w"> </span>m(args:<span class="w"> </span>Any*):<span class="w"> </span>String<span class="w"> </span>=<span class="w"> </span>{
-<span class="w">        </span>//<span class="w"> </span>Create<span class="w"> </span>a<span class="w"> </span>string<span class="w"> </span>where<span class="w"> </span>each<span class="w"> </span>arg<span class="w"> </span>is<span class="w"> </span>&#39;x&#39;
+<span class="w">        </span>//<span class="w"> </span>Create<span class="w"> </span>a<span class="w"> </span>string<span class="w"> </span>where<span class="w"> </span>each<span class="w"> </span>arg<span class="w"> </span>is<span class="w"> </span>'x'
 <span class="w">        </span>assert(sc.parts.length<span class="w"> </span>==<span class="w"> </span>args.length<span class="w"> </span>+<span class="w"> </span>1)
 <span class="w">        </span>val<span class="w"> </span>parts<span class="w"> </span>=<span class="w"> </span>sc.parts
-<span class="w">        </span>val<span class="w"> </span>substitutedArgs<span class="w"> </span>=<span class="w"> </span>args.map(_<span class="w"> </span>=&gt;<span class="w"> </span>&quot;x&quot;)
+<span class="w">        </span>val<span class="w"> </span>substitutedArgs<span class="w"> </span>=<span class="w"> </span>args.map(_<span class="w"> </span>=&gt;<span class="w"> </span>"x")
 <span class="w">        </span>val<span class="w"> </span>indentString<span class="w"> </span>=<span class="w"> </span>(parts.init<span class="w"> </span>zip<span class="w"> </span>substitutedArgs).map<span class="w"> </span>{<span class="w"> </span>case<span class="w"> </span>(part,<span class="w"> </span>arg)<span class="w"> </span>=&gt;<span class="w"> </span>part<span class="w"> </span>+<span class="w"> </span>arg<span class="w"> </span>}.mkString<span class="w"> </span>+<span class="w"> </span>parts.last
 
 <span class="w">        </span>//<span class="w"> </span>Use<span class="w"> </span>this<span class="w"> </span>string<span class="w"> </span>to<span class="w"> </span>compute<span class="w"> </span>the<span class="w"> </span>indent<span class="w"> </span>count
 <span class="w">        </span>val<span class="w"> </span>indentCount<span class="w"> </span>=<span class="w"> </span>indentString.linesIterator
 <span class="w">            </span>.filter(_.trim.nonEmpty)
-<span class="w">            </span>.map(line<span class="w"> </span>=&gt;<span class="w"> </span>line.takeWhile(_<span class="w"> </span>==<span class="w"> </span>&#39;<span class="w"> </span>&#39;).length)
+<span class="w">            </span>.map(line<span class="w"> </span>=&gt;<span class="w"> </span>line.takeWhile(_<span class="w"> </span>==<span class="w"> </span>'<span class="w"> </span>').length)
 <span class="w">            </span>.minOption
-<span class="w">            </span>.getOrElse(0)<span class="w"> </span>//<span class="w"> </span>Default<span class="w"> </span>value<span class="w"> </span>when<span class="w"> </span>there&#39;s<span class="w"> </span>no<span class="w"> </span>non-empty<span class="w"> </span>line
+<span class="w">            </span>.getOrElse(0)<span class="w"> </span>//<span class="w"> </span>Default<span class="w"> </span>value<span class="w"> </span>when<span class="w"> </span>there's<span class="w"> </span>no<span class="w"> </span>non-empty<span class="w"> </span>line
 
 <span class="w">        </span>//<span class="w"> </span>Add<span class="w"> </span>in<span class="w"> </span>this<span class="w"> </span>indentation<span class="w"> </span>to<span class="w"> </span>each<span class="w"> </span>newline<span class="w"> </span>within<span class="w"> </span>each<span class="w"> </span>arg
-<span class="w">        </span>val<span class="w"> </span>processed<span class="w"> </span>=<span class="w"> </span>sc.parts.zipAll(args,<span class="w"> </span>&quot;&quot;,<span class="w"> </span>&quot;&quot;).map<span class="w"> </span>{
+<span class="w">        </span>val<span class="w"> </span>processed<span class="w"> </span>=<span class="w"> </span>sc.parts.zipAll(args,<span class="w"> </span>"",<span class="w"> </span>"").map<span class="w"> </span>{
 <span class="w">            </span>case<span class="w"> </span>(str,<span class="w"> </span>arg)<span class="w"> </span>=&gt;
-<span class="w">                </span>str<span class="w"> </span>+<span class="w"> </span>arg.toString.split(&quot;\n&quot;).mkString(&quot;\n&quot;<span class="w"> </span>+<span class="w"> </span>(&quot;<span class="w"> </span>&quot;<span class="w"> </span>*<span class="w"> </span>indentCount))
+<span class="w">                </span>str<span class="w"> </span>+<span class="w"> </span>arg.toString.split("\n").mkString("\n"<span class="w"> </span>+<span class="w"> </span>("<span class="w"> </span>"<span class="w"> </span>*<span class="w"> </span>indentCount))
 <span class="w">        </span>}
 
 <span class="w">        </span>//<span class="w"> </span>Strip<span class="w"> </span>starting/ending<span class="w"> </span>newlines<span class="w"> </span>with<span class="w"> </span>leading/trailing<span class="w"> </span>spaces.
 <span class="w">        </span>//<span class="w"> </span>We<span class="w"> </span>do<span class="w"> </span>this<span class="w"> </span>to<span class="w"> </span>support<span class="w"> </span>syntax<span class="w"> </span>like:
-<span class="w">        </span>//<span class="w">   </span>val<span class="w"> </span>str<span class="w"> </span>=<span class="w"> </span>m&quot;&quot;&quot;
+<span class="w">        </span>//<span class="w">   </span>val<span class="w"> </span>str<span class="w"> </span>=<span class="w"> </span>m"""
 <span class="w">        </span>//<span class="w">       </span>string<span class="w"> </span>content
-<span class="w">        </span>//<span class="w">     </span>&quot;&quot;&quot;
-<span class="w">        </span>//<span class="w"> </span>which<span class="w"> </span>should<span class="w"> </span>be<span class="w"> </span>equal<span class="w"> </span>to<span class="w"> </span>&quot;string<span class="w"> </span>content&quot;
-<span class="w">        </span>val<span class="w"> </span>combined<span class="w"> </span>=<span class="w"> </span>processed.mkString.replaceAll(&quot;^<span class="w"> </span>*\n&quot;,<span class="w"> </span>&quot;&quot;).replaceAll(&quot;\n<span class="w"> </span>*$&quot;,<span class="w"> </span>&quot;&quot;)
+<span class="w">        </span>//<span class="w">     </span>"""
+<span class="w">        </span>//<span class="w"> </span>which<span class="w"> </span>should<span class="w"> </span>be<span class="w"> </span>equal<span class="w"> </span>to<span class="w"> </span>"string<span class="w"> </span>content"
+<span class="w">        </span>val<span class="w"> </span>combined<span class="w"> </span>=<span class="w"> </span>processed.mkString.replaceAll("^<span class="w"> </span>*\n",<span class="w"> </span>"").replaceAll("\n<span class="w"> </span>*$",<span class="w"> </span>"")
 
-<span class="w">        </span>combined.linesIterator.map(line<span class="w"> </span>=&gt;<span class="w"> </span>line.drop(indentCount)).mkString(&quot;\n&quot;)
+<span class="w">        </span>combined.linesIterator.map(line<span class="w"> </span>=&gt;<span class="w"> </span>line.drop(indentCount)).mkString("\n")
 <span class="w">    </span>}
 }
 </code></pre></div>
-
 <p>And then I can write:</p>
-<div class="codehilite"><pre><span></span><code>val center = m&quot;&quot;&quot;
+<div class="codehilite"><pre><span></span><code>val center = m"""
         is a
         multiline
-    &quot;&quot;&quot;
+    """
 
-val example = m&quot;&quot;&quot;
+val example = m"""
         This
         $center
         string.
-    &quot;&quot;&quot;
+    """
 </code></pre></div>
-
 <p>And it works the way I'd hope:</p>
 <div class="codehilite"><pre><span></span><code>This
 is a
 multiline
 string.
 </code></pre></div>
-
 <p>Is there any reason why language designers don't handle multiline string
 templating like this by default?</p>
-
-<br>
-
+<br/>
 <p>
     If you enjoyed this post, please let me know on
     <a href="https://twitter.com/tommulcahy">Twitter</a>
     or
     <a href="https://androiddev.social/@tcm">Mastodon</a>.
 </p>
-
 <p>
-    <i>Posted November 21, 2023.</i>
+<i>Posted November 21, 2023.</i>
 </p>
 <p>
-    <i>Tags:</i> <a href="/tags/misc.html">#misc</a>
+<i>Tags:</i> <a href="/tags/misc.html">#misc</a>
 </p>
-
 <div class="navbar">
-    <a href="/">Index</a>
-    <a href="/rss.xml">RSS</a>
-    <a href="/about.html">About</a>
+<a href="/">Index</a>
+<a href="/rss.xml">RSS</a>
+<a href="/about.html">About</a>
 </div>
-
 </body>
 </html>

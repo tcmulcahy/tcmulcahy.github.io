@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuring computer names within a LAN</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Configuring computer names within a LAN</title>
+<style>
         :root {
             /* Light Mode */
             --background-color: white;
@@ -122,6 +123,41 @@
             color: var(--active-link-color);
         }
 
+        .anchor-symbol {
+          font-family: sans-serif; /* Or another common set */
+          position: absolute;
+          left: 0; /* Position at the header's left edge */
+          transform: translateX(-100%); /* Shift it just left of that edge */
+          visibility: hidden; /* Hidden by default */
+          text-decoration: none;
+          color: inherit; /* Match the header text color */
+          font-size: 0.9em; /* Adjust size if desired */
+          line-height: 1; /* Helps vertically center icon with text */
+        }
+
+        h1:hover .anchor-symbol,
+        h2:hover .anchor-symbol,
+        h3:hover .anchor-symbol,
+        h4:hover .anchor-symbol,
+        h5:hover .anchor-symbol,
+        h6:hover .anchor-symbol {
+          visibility: visible;
+          text-decoration: none;
+        }
+
+        .heading-link,
+        .heading-link:visited,
+        .heading-link:hover,
+        .heading-link:active,
+        .heading-link:focus {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+          position: relative;
+        }
+
         /* Code Blocks */
         pre {
             line-height: 125%;
@@ -157,14 +193,11 @@
     </style>
 </head>
 <body>
-
 <h1>Configuring computer names within a LAN</h1>
-
 <p><i>How to publish a computer name to Multicast DNS</i></p>
-
 <p>I recently bought a Raspberry Pi and I wanted to be able to SSH into it. The
 problem is - what's its IP address?</p>
-<h2>Solution 1 - ifconfig</h2>
+<h2 id="solution-1-ifconfig"><a class="heading-link" href="#solution-1-ifconfig">Solution 1 - ifconfig<span class="anchor-symbol" style="padding-right: 20px; margin-left: 8px;">¶</span></a></h2>
 <p>If I have a monitor/keyboard attached to the Pi, then I can run <code>ifconfig</code> and it produces output like:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">wlan0</span><span class="o">:</span><span class="w"> </span><span class="n">flags</span><span class="o">=</span><span class="mi">4163</span><span class="o">&lt;</span><span class="n">UP</span><span class="o">,</span><span class="n">BROADCAST</span><span class="o">,</span><span class="n">RUNNING</span><span class="o">,</span><span class="n">MULTICAST</span><span class="o">&gt;</span><span class="w">  </span><span class="n">mtu</span><span class="w"> </span><span class="mi">1500</span>
 <span class="w">        </span><span class="n">inet</span><span class="w"> </span><span class="mf">192.168</span><span class="o">.</span><span class="mf">7.207</span><span class="w">  </span><span class="n">netmask</span><span class="w"> </span><span class="mf">255.255</span><span class="o">.</span><span class="mf">252.0</span><span class="w">  </span><span class="n">broadcast</span><span class="w"> </span><span class="mf">192.168</span><span class="o">.</span><span class="mf">7.255</span>
@@ -175,18 +208,16 @@ problem is - what's its IP address?</p>
 <span class="w">        </span><span class="n">TX</span><span class="w"> </span><span class="n">packets</span><span class="w"> </span><span class="mi">10826</span><span class="w">  </span><span class="n">bytes</span><span class="w"> </span><span class="mi">1248499</span><span class="w"> </span><span class="o">(</span><span class="mf">1.1</span><span class="w"> </span><span class="n">MiB</span><span class="o">)</span>
 <span class="w">        </span><span class="n">TX</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">dropped</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">overruns</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">carrier</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">collisions</span><span class="w"> </span><span class="mi">0</span>
 </code></pre></div>
-
 <p>That means I can SSH into <code>192.168.7.207</code>. This works, but it has a huge
 drawback: the IP address can change, so I need to attach a monitor/keyboard.
 This kind of obviates the need for SSH. It also produces SSH warning messages
 each time the IP address changes.</p>
-<h2>Solution 2 - pinning the IP address in my router</h2>
+<h2 id="solution-2-pinning-the-ip-address-in-my-router"><a class="heading-link" href="#solution-2-pinning-the-ip-address-in-my-router">Solution 2 - pinning the IP address in my router<span class="anchor-symbol" style="padding-right: 20px; margin-left: 8px;">¶</span></a></h2>
 <p>I use a EERO router, which has software which allows me to pin specific devices
 to specific IP addresses. So I can pin my PI to <code>192.168.7.207</code>. I don't like
 to remember a sequence of numbers, so I add an entry to my <code>/etc/hosts</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="mf">192.168.7.207</span><span class="w"> </span><span class="n">raspberry</span><span class="o">-</span><span class="n">pi</span>
 </code></pre></div>
-
 <p>Now I can disconnect my monitor/keyboard and <code>ssh raspberry-pi</code>. But there are still some drawbacks:</p>
 <ol>
 <li>
@@ -199,13 +230,13 @@ to remember a sequence of numbers, so I add an entry to my <code>/etc/hosts</cod
    track them all down.</p>
 </li>
 </ol>
-<h2>Solution 3 - multicast DNS</h2>
+<h2 id="solution-3-multicast-dns"><a class="heading-link" href="#solution-3-multicast-dns">Solution 3 - multicast DNS<span class="anchor-symbol" style="padding-right: 20px; margin-left: 8px;">¶</span></a></h2>
 <p>This is my current solution, and I'm quite happy with it. I can configure my
 raspberry-pi to publish its name via <a href="https://en.wikipedia.org/wiki/Multicast_DNS">Multicast
 DNS</a> (aka mDNS). The software to do this for
 Linux is <a href="https://avahi.org/">Avahi</a>. On NixOS this can be setup as follows:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nx">networking</span><span class="p">.</span><span class="nx">hostName</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;raspberry-pi&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">networking</span><span class="p">.</span><span class="nx">hostName</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"raspberry-pi"</span><span class="p">;</span>
 
 <span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nx">Enable</span><span class="w"> </span><span class="nx">LAN</span><span class="w"> </span><span class="nx">hostname</span><span class="w"> </span><span class="nx">resolution</span><span class="w"> </span><span class="p">(</span><span class="nx">so</span><span class="w"> </span><span class="nx">other</span><span class="w"> </span><span class="nx">machines</span><span class="w"> </span><span class="nx">on</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">same</span><span class="w"> </span><span class="nx">LAN</span><span class="w"> </span><span class="nx">can</span><span class="w"> </span><span class="nx">find</span>
 <span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nx">this</span><span class="w"> </span><span class="nx">one</span><span class="p">)</span>
@@ -223,31 +254,25 @@ Linux is <a href="https://avahi.org/">Avahi</a>. On NixOS this can be setup as f
 <span class="w">  </span><span class="p">};</span>
 <span class="p">}</span>
 </code></pre></div>
-
 <p>With mDNS I can ssh into my Pi with <code>ssh raspberry-pi.local</code>. Any machine on
 the same LAN can resolve this address. I don't need any external configuration.</p>
-
-<br>
-
+<br/>
 <p>
     If you enjoyed this post, please let me know on
     <a href="https://twitter.com/tommulcahy">Twitter</a>
     or
     <a href="https://androiddev.social/@tcm">Mastodon</a>.
 </p>
-
 <p>
-    <i>Posted December 29, 2023.</i>
+<i>Posted December 29, 2023.</i>
 </p>
 <p>
-    <i>Tags:</i> <a href="/tags/linux.html">#linux</a>
+<i>Tags:</i> <a href="/tags/linux.html">#linux</a>
 </p>
-
 <div class="navbar">
-    <a href="/">Index</a>
-    <a href="/rss.xml">RSS</a>
-    <a href="/about.html">About</a>
+<a href="/">Index</a>
+<a href="/rss.xml">RSS</a>
+<a href="/about.html">About</a>
 </div>
-
 </body>
 </html>

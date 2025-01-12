@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frustrations with Google Takeout</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Frustrations with Google Takeout</title>
+<style>
         :root {
             /* Light Mode */
             --background-color: white;
@@ -122,6 +123,41 @@
             color: var(--active-link-color);
         }
 
+        .anchor-symbol {
+          font-family: sans-serif; /* Or another common set */
+          position: absolute;
+          left: 0; /* Position at the header's left edge */
+          transform: translateX(-100%); /* Shift it just left of that edge */
+          visibility: hidden; /* Hidden by default */
+          text-decoration: none;
+          color: inherit; /* Match the header text color */
+          font-size: 0.9em; /* Adjust size if desired */
+          line-height: 1; /* Helps vertically center icon with text */
+        }
+
+        h1:hover .anchor-symbol,
+        h2:hover .anchor-symbol,
+        h3:hover .anchor-symbol,
+        h4:hover .anchor-symbol,
+        h5:hover .anchor-symbol,
+        h6:hover .anchor-symbol {
+          visibility: visible;
+          text-decoration: none;
+        }
+
+        .heading-link,
+        .heading-link:visited,
+        .heading-link:hover,
+        .heading-link:active,
+        .heading-link:focus {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+          position: relative;
+        }
+
         /* Code Blocks */
         pre {
             line-height: 125%;
@@ -157,11 +193,8 @@
     </style>
 </head>
 <body>
-
 <h1>Frustrations with Google Takeout</h1>
-
 <p><i>Problems I experienced with Google Takeout and how I worked around them</i></p>
-
 <p>When I purchased the mulcahy.ca domain name I thought it would be a good idea
 to use Google Apps For Your Domain. Basically I got something that looked like
 a normal Google account - gmail, etc - but my login was <em>[redacted]</em>@mulcahy.ca
@@ -180,25 +213,25 @@ business owners rather than hobbyists.</p>
 forwarding for $5/year, so I've wanted to leave Google Workspace and save some
 money for a long time. In theory, it should be easy. Google Takeout advertises
 the ability to download all of your data. In practice, not so much.</p>
-<h2>Takeout Problem #1: Incomplete data</h2>
+<h2 id="takeout-problem-1-incomplete-data"><a class="heading-link" href="#takeout-problem-1-incomplete-data">Takeout Problem #1: Incomplete data<span class="anchor-symbol" style="padding-right: 20px; margin-left: 8px;">¶</span></a></h2>
 <p>The data I downloaded from takeout was incomplete. <a href="https://www.reddit.com/r/googlephotos/comments/1cx0tds/please_dont_use_google_photos_and_google_takeout/">Apparently I'm not the only
 one</a>.
 I downloaded folders from Google Drive and some files in subfolders were
 missing. This is a big problem for me because I have important records I can't
 lose. I'm fortunate that I noticed a problem before deleting the original data.</p>
-<h2>Takeout Problem #2: Missing metadata</h2>
+<h2 id="takeout-problem-2-missing-metadata"><a class="heading-link" href="#takeout-problem-2-missing-metadata">Takeout Problem #2: Missing metadata<span class="anchor-symbol" style="padding-right: 20px; margin-left: 8px;">¶</span></a></h2>
 <p>When I used takeout to download photos from Google Photos the timestamps were
 missing. This was a big problem for me because my photos of my children as
 babies were in my Google Workspace account. I really wanted to know when each
 photo was taken.</p>
-<h2>Takeout Problem #3: File conversion</h2>
+<h2 id="takeout-problem-3-file-conversion"><a class="heading-link" href="#takeout-problem-3-file-conversion">Takeout Problem #3: File conversion<span class="anchor-symbol" style="padding-right: 20px; margin-left: 8px;">¶</span></a></h2>
 <p>I had lots of gdocs and Takeout automatically converted them to docx. Some of
 the file/folder names got changed slightly. This is not as much of a
 deal-breaker as the first two, but it still makes me unhappy. I wanted to
 re-upload the takeout files into my personal Gmail account, so they should be
 able to remain as gdocs. Although this whole debacle makes me question whether
 I should be using gdocs. I will defer that to a later time.</p>
-<h2>Google Photos Solution</h2>
+<h2 id="google-photos-solution"><a class="heading-link" href="#google-photos-solution">Google Photos Solution<span class="anchor-symbol" style="padding-right: 20px; margin-left: 8px;">¶</span></a></h2>
 <p>I used "Partner Sharing" to share all of my photos with my personal Gmail
 account, and then in that personal account I chose to save all photos to my
 account. This worked quite well and really wasn't too hard. The only thing I
@@ -206,7 +239,7 @@ didn't like is that it didn't tell me when sharing was complete, so I don't
 really know when it's safe to delete the originals, but probably it's okay a
 day later? Make sure you choose the option to save the shared photos to your
 account.</p>
-<h2>Google Drive Solution</h2>
+<h2 id="google-drive-solution"><a class="heading-link" href="#google-drive-solution">Google Drive Solution<span class="anchor-symbol" style="padding-right: 20px; margin-left: 8px;">¶</span></a></h2>
 <p>I couldn't find an easy solution for Google Drive. There is a setting to
 transfer ownership but it doesn't allow you to transfer outside of your
 "organization". You can share folders with people outside of your organization,
@@ -238,148 +271,141 @@ transferred ownership accidentally.</p>
 <span class="kn">from</span> <span class="nn">googleapiclient.http</span> <span class="kn">import</span> <span class="n">MediaIoBaseDownload</span>
 
 <span class="c1"># If modifying or deleting the scope later, delete the token.json file to revoke the old one</span>
-<span class="n">SCOPES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;https://www.googleapis.com/auth/drive&#39;</span><span class="p">]</span>
+<span class="n">SCOPES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'https://www.googleapis.com/auth/drive'</span><span class="p">]</span>
 
 <span class="c1"># Authenticate and create the service</span>
 <span class="k">def</span> <span class="nf">authenticate</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Authenticate and return the service.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Authenticate and return the service."""</span>
     <span class="n">creds</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="c1"># The file token.json stores the user&#39;s access and refresh tokens, and is created automatically when the authorization flow completes for the first time.</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;token.json&#39;</span><span class="p">):</span>
-        <span class="n">creds</span> <span class="o">=</span> <span class="n">Credentials</span><span class="o">.</span><span class="n">from_authorized_user_file</span><span class="p">(</span><span class="s1">&#39;token.json&#39;</span><span class="p">,</span> <span class="n">SCOPES</span><span class="p">)</span>
+    <span class="c1"># The file token.json stores the user's access and refresh tokens, and is created automatically when the authorization flow completes for the first time.</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">'token.json'</span><span class="p">):</span>
+        <span class="n">creds</span> <span class="o">=</span> <span class="n">Credentials</span><span class="o">.</span><span class="n">from_authorized_user_file</span><span class="p">(</span><span class="s1">'token.json'</span><span class="p">,</span> <span class="n">SCOPES</span><span class="p">)</span>
     <span class="c1"># If there are no (valid) credentials available, let the user log in.</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">creds</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">creds</span><span class="o">.</span><span class="n">valid</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">creds</span> <span class="ow">and</span> <span class="n">creds</span><span class="o">.</span><span class="n">expired</span> <span class="ow">and</span> <span class="n">creds</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">:</span>
             <span class="n">creds</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">Request</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">flow</span> <span class="o">=</span> <span class="n">InstalledAppFlow</span><span class="o">.</span><span class="n">from_client_secrets_file</span><span class="p">(</span>
-                <span class="s1">&#39;credentials.json&#39;</span><span class="p">,</span> <span class="n">SCOPES</span><span class="p">)</span>
+                <span class="s1">'credentials.json'</span><span class="p">,</span> <span class="n">SCOPES</span><span class="p">)</span>
             <span class="n">creds</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">run_local_server</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">8080</span><span class="p">)</span>
         <span class="c1"># Save the credentials for the next run</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;token.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">token</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'token.json'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">token</span><span class="p">:</span>
             <span class="n">token</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">creds</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span>
 
-    <span class="n">service</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="s1">&#39;drive&#39;</span><span class="p">,</span> <span class="s1">&#39;v3&#39;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">creds</span><span class="p">)</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="s1">'drive'</span><span class="p">,</span> <span class="s1">'v3'</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="n">creds</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">service</span>
 
 <span class="k">def</span> <span class="nf">get_folder_contents</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get all files and subfolders in a folder, handling pagination.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get all files and subfolders in a folder, handling pagination."""</span>
     <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">page_token</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="c1"># List the files in the folder, handling pagination with page_token</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">files</span><span class="p">()</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
-            <span class="n">q</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">folder_id</span><span class="si">}</span><span class="s2">&#39; in parents&quot;</span><span class="p">,</span>
-            <span class="n">fields</span><span class="o">=</span><span class="s2">&quot;nextPageToken, files(id, name, mimeType)&quot;</span><span class="p">,</span>
+            <span class="n">q</span><span class="o">=</span><span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">folder_id</span><span class="si">}</span><span class="s2">' in parents"</span><span class="p">,</span>
+            <span class="n">fields</span><span class="o">=</span><span class="s2">"nextPageToken, files(id, name, mimeType)"</span><span class="p">,</span>
             <span class="n">pageToken</span><span class="o">=</span><span class="n">page_token</span>
         <span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
 
         <span class="c1"># Add the files from this page to the list of items</span>
-        <span class="n">items</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;files&#39;</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="n">items</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'files'</span><span class="p">,</span> <span class="p">[]))</span>
 
         <span class="c1"># Check if there is another page of results</span>
-        <span class="n">page_token</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;nextPageToken&#39;</span><span class="p">)</span>
+        <span class="n">page_token</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'nextPageToken'</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">page_token</span><span class="p">:</span>
             <span class="k">break</span>  <span class="c1"># No more pages, exit the loop</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;returning </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span><span class="si">}</span><span class="s2"> items&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"returning </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span><span class="si">}</span><span class="s2"> items"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">items</span>
 
 <span class="k">def</span> <span class="nf">copy_file</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">file_id</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Copy a file to the new folder, preserving the original file name.&quot;&quot;&quot;</span>
-    <span class="c1"># Get the file&#39;s metadata to preserve its original name</span>
-    <span class="n">file</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">files</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fileId</span><span class="o">=</span><span class="n">file_id</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-    <span class="n">file_name</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">"""Copy a file to the new folder, preserving the original file name."""</span>
+    <span class="c1"># Get the file's metadata to preserve its original name</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">files</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fileId</span><span class="o">=</span><span class="n">file_id</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="s1">'name'</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+    <span class="n">file_name</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span>
 
     <span class="c1"># Prepare the metadata for the copy operation</span>
-    <span class="n">file_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;parents&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">folder_id</span><span class="p">]}</span>
+    <span class="n">file_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span> <span class="s1">'parents'</span><span class="p">:</span> <span class="p">[</span><span class="n">folder_id</span><span class="p">]}</span>
 
     <span class="c1"># Copy the file to the new folder</span>
     <span class="n">copied_file</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">files</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">fileId</span><span class="o">=</span><span class="n">file_id</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">file_metadata</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Copied file: </span><span class="si">{</span><span class="n">copied_file</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> - original_id=</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">, new_id=</span><span class="si">{</span><span class="n">copied_file</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, mimeType=</span><span class="si">{</span><span class="n">copied_file</span><span class="p">[</span><span class="s1">&#39;mimeType&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">copied_file</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Copied file: </span><span class="si">{</span><span class="n">copied_file</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span><span class="si">}</span><span class="s2"> - original_id=</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">, new_id=</span><span class="si">{</span><span class="n">copied_file</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]</span><span class="si">}</span><span class="s2">, mimeType=</span><span class="si">{</span><span class="n">copied_file</span><span class="p">[</span><span class="s1">'mimeType'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">copied_file</span><span class="si">=}</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">copied_file</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">copied_file</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]</span>
 
 <span class="c1"># After copying the file, restore timestamps</span>
 <span class="k">def</span> <span class="nf">restore_timestamps</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">copied_file_id</span><span class="p">,</span> <span class="n">original_file_id</span><span class="p">):</span>
-    <span class="n">original_file</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">files</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fileId</span><span class="o">=</span><span class="n">original_file_id</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="s1">&#39;createdTime, modifiedTime&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-    <span class="n">created_time</span> <span class="o">=</span> <span class="n">original_file</span><span class="p">[</span><span class="s1">&#39;createdTime&#39;</span><span class="p">]</span>
-    <span class="n">modified_time</span> <span class="o">=</span> <span class="n">original_file</span><span class="p">[</span><span class="s1">&#39;modifiedTime&#39;</span><span class="p">]</span>
+    <span class="n">original_file</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">files</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fileId</span><span class="o">=</span><span class="n">original_file_id</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="s1">'createdTime, modifiedTime'</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+    <span class="n">created_time</span> <span class="o">=</span> <span class="n">original_file</span><span class="p">[</span><span class="s1">'createdTime'</span><span class="p">]</span>
+    <span class="n">modified_time</span> <span class="o">=</span> <span class="n">original_file</span><span class="p">[</span><span class="s1">'modifiedTime'</span><span class="p">]</span>
 
-    <span class="c1"># Update the copied file&#39;s timestamps (Google Drive doesn&#39;t allow setting createdTime directly, but we can update modifiedTime)</span>
-    <span class="n">updated_file_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;modifiedTime&#39;</span><span class="p">:</span> <span class="n">modified_time</span><span class="p">}</span>
+    <span class="c1"># Update the copied file's timestamps (Google Drive doesn't allow setting createdTime directly, but we can update modifiedTime)</span>
+    <span class="n">updated_file_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'modifiedTime'</span><span class="p">:</span> <span class="n">modified_time</span><span class="p">}</span>
     <span class="n">service</span><span class="o">.</span><span class="n">files</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">fileId</span><span class="o">=</span><span class="n">copied_file_id</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">updated_file_metadata</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Restored timestamps for copied file </span><span class="si">{</span><span class="n">copied_file_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Restored timestamps for copied file </span><span class="si">{</span><span class="n">copied_file_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Copy a folder</span>
 <span class="k">def</span> <span class="nf">copy_folder</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">source_folder_id</span><span class="p">,</span> <span class="n">destination_folder_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively copy a folder and its contents.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Recursively copy a folder and its contents."""</span>
     <span class="c1"># First, copy all files in the folder</span>
     <span class="n">items</span> <span class="o">=</span> <span class="n">get_folder_contents</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">source_folder_id</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;mimeType&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;application/vnd.google-apps.folder&#39;</span><span class="p">:</span>  <span class="c1"># If it&#39;s a folder</span>
+        <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s1">'mimeType'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'application/vnd.google-apps.folder'</span><span class="p">:</span>  <span class="c1"># If it's a folder</span>
             <span class="c1"># Create the folder in the destination</span>
-            <span class="n">folder_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="s1">&#39;mimeType&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.google-apps.folder&#39;</span><span class="p">,</span> <span class="s1">&#39;parents&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">destination_folder_id</span><span class="p">]}</span>
-            <span class="n">new_folder</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">files</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="n">folder_metadata</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="s1">&#39;id, name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created folder: </span><span class="si">{</span><span class="n">new_folder</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">restore_timestamps</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">copied_file_id</span><span class="o">=</span><span class="n">new_folder</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">original_file_id</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+            <span class="n">folder_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s1">'name'</span><span class="p">],</span> <span class="s1">'mimeType'</span><span class="p">:</span> <span class="s1">'application/vnd.google-apps.folder'</span><span class="p">,</span> <span class="s1">'parents'</span><span class="p">:</span> <span class="p">[</span><span class="n">destination_folder_id</span><span class="p">]}</span>
+            <span class="n">new_folder</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">files</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="n">folder_metadata</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="s1">'id, name'</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Created folder: </span><span class="si">{</span><span class="n">new_folder</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">restore_timestamps</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">copied_file_id</span><span class="o">=</span><span class="n">new_folder</span><span class="p">[</span><span class="s1">'id'</span><span class="p">],</span> <span class="n">original_file_id</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">'id'</span><span class="p">])</span>
             <span class="c1"># Recursively copy the contents of this folder</span>
-            <span class="n">copy_folder</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">new_folder</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+            <span class="n">copy_folder</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s1">'id'</span><span class="p">],</span> <span class="n">new_folder</span><span class="p">[</span><span class="s1">'id'</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Copy the file to the destination folder</span>
-            <span class="n">copied_file_id</span> <span class="o">=</span> <span class="n">copy_file</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">destination_folder_id</span><span class="p">)</span>
-            <span class="n">restore_timestamps</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">copied_file_id</span><span class="o">=</span><span class="n">copied_file_id</span><span class="p">,</span> <span class="n">original_file_id</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+            <span class="n">copied_file_id</span> <span class="o">=</span> <span class="n">copy_file</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="s1">'id'</span><span class="p">],</span> <span class="n">destination_folder_id</span><span class="p">)</span>
+            <span class="n">restore_timestamps</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">copied_file_id</span><span class="o">=</span><span class="n">copied_file_id</span><span class="p">,</span> <span class="n">original_file_id</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s1">'id'</span><span class="p">])</span>
 
 <span class="c1"># Main function to copy folder</span>
 <span class="k">def</span> <span class="nf">copy_drive_folder</span><span class="p">(</span><span class="n">source_folder_id</span><span class="p">,</span> <span class="n">destination_folder_id</span><span class="p">):</span>
     <span class="n">service</span> <span class="o">=</span> <span class="n">authenticate</span><span class="p">()</span>
     <span class="n">copy_folder</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">source_folder_id</span><span class="p">,</span> <span class="n">destination_folder_id</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">source_folder_id</span> <span class="o">=</span> <span class="s1">&#39;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&#39;</span>  <span class="c1"># Replace with your source folder ID</span>
-    <span class="n">destination_folder_id</span> <span class="o">=</span> <span class="s1">&#39;YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY&#39;</span>  <span class="c1"># Replace with your destination folder ID</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
+    <span class="n">source_folder_id</span> <span class="o">=</span> <span class="s1">'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'</span>  <span class="c1"># Replace with your source folder ID</span>
+    <span class="n">destination_folder_id</span> <span class="o">=</span> <span class="s1">'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY'</span>  <span class="c1"># Replace with your destination folder ID</span>
     <span class="n">copy_drive_folder</span><span class="p">(</span><span class="n">source_folder_id</span><span class="p">,</span> <span class="n">destination_folder_id</span><span class="p">)</span>
 </code></pre></div>
-
 <p>You'll also need to pip install dependencies:</p>
 <div class="codehilite"><pre><span></span><code>pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
 </code></pre></div>
-
-<h2>Gmail Solution</h2>
+<h2 id="gmail-solution"><a class="heading-link" href="#gmail-solution">Gmail Solution<span class="anchor-symbol" style="padding-right: 20px; margin-left: 8px;">¶</span></a></h2>
 <p>I didn't really have much of a problem here because I've been forwarding my
 email from my Google Workspace account to my personal account for years. I've
 also set up <a href="https://en.wikipedia.org/wiki/OfflineIMAP">OfflineIMAP</a> so I can
 keep local copies of my emails.</p>
-<h2>Solutions for other Google services</h2>
+<h2 id="solutions-for-other-google-services"><a class="heading-link" href="#solutions-for-other-google-services">Solutions for other Google services<span class="anchor-symbol" style="padding-right: 20px; margin-left: 8px;">¶</span></a></h2>
 <p>I don't think I really have anything else there, but I used Google Takeout to
 download everything else just in case.</p>
-
-<br>
-
+<br/>
 <p>
     If you enjoyed this post, please let me know on
     <a href="https://twitter.com/tommulcahy">Twitter</a>
     or
     <a href="https://androiddev.social/@tcm">Mastodon</a>.
 </p>
-
 <p>
-    <i>Posted December 27, 2024.</i>
+<i>Posted December 27, 2024.</i>
 </p>
 <p>
-    <i>Tags:</i> <a href="/tags/python.html">#python</a>
+<i>Tags:</i> <a href="/tags/python.html">#python</a>
 </p>
-
 <div class="navbar">
-    <a href="/">Index</a>
-    <a href="/rss.xml">RSS</a>
-    <a href="/about.html">About</a>
+<a href="/">Index</a>
+<a href="/rss.xml">RSS</a>
+<a href="/about.html">About</a>
 </div>
-
 </body>
 </html>

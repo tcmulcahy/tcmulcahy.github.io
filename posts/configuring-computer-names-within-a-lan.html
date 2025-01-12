@@ -124,11 +124,12 @@
         }
 
         .anchor-symbol {
-          font-family: sans-serif; /* Or another common set */
+          font-family: sans-serif;
           position: absolute;
           left: 0; /* Position at the header's left edge */
           transform: translateX(-100%); /* Shift it just left of that edge */
-          visibility: hidden; /* Hidden by default */
+          opacity: 0;
+          transition: opacity 0.3s ease;
           text-decoration: none;
           color: inherit; /* Match the header text color */
           font-size: 0.9em; /* Adjust size if desired */
@@ -141,7 +142,7 @@
         h4:hover .anchor-symbol,
         h5:hover .anchor-symbol,
         h6:hover .anchor-symbol {
-          visibility: visible;
+          opacity: 1;
           text-decoration: none;
         }
 
@@ -203,7 +204,58 @@
         .codehilite .w {
             color: var(--code-whitespace);
         }
+
+        .code-block-container {
+          position: relative;  /* So the button can be absolutely positioned */
+          margin: 1em 0;       /* Optional spacing around code blocks */
+        }
+
+        .code-block-container pre {
+          overflow: auto;       /* Horizontal scroll if needed */
+        }
+
+        /* The copy icon button, initially hidden */
+        .copy-btn {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          border: none;
+          border-radius: 4px;
+          background-color: #666; /* Feel free to choose any color */
+          color: #fff;
+          cursor: pointer;
+          font-size: 1.25em;
+        }
+
+        /* Show the button when hovering over the container */
+        .code-block-container:hover .copy-btn {
+          opacity: 1;
+        }
     </style>
+<script>
+         document.addEventListener("DOMContentLoaded", () => {
+          document.querySelectorAll(".copy-btn").forEach(button => {
+            button.addEventListener("click", () => {
+              // Find the associated code block inside the same container
+              const container = button.closest(".code-block-container");
+              const codeElem = container.querySelector("code");
+              const codeText = codeElem.textContent || codeElem.innerText;
+
+              // Copy the text to clipboard
+              navigator.clipboard.writeText(codeText).then(() => {
+                const original = button.textContent;
+                button.textContent = "✓";
+                setTimeout(() => button.textContent = original, 1500);
+              }).catch(err => {
+                console.error("Failed to copy", err);
+                button.textContent = "Error";
+              });
+            });
+          });
+        });
+    </script>
 </head>
 <body>
 <h1>Configuring computer names within a LAN</h1>
@@ -212,7 +264,7 @@
 problem is - what's its IP address?</p>
 <h2 id="solution-1-ifconfig"><a class="heading-link" href="#solution-1-ifconfig">Solution 1 - ifconfig<span class="anchor-symbol" style="padding-right: 20px; margin-left: 8px;">¶</span></a></h2>
 <p>If I have a monitor/keyboard attached to the Pi, then I can run <code>ifconfig</code> and it produces output like:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">wlan0</span><span class="o">:</span><span class="w"> </span><span class="n">flags</span><span class="o">=</span><span class="mi">4163</span><span class="o">&lt;</span><span class="n">UP</span><span class="o">,</span><span class="n">BROADCAST</span><span class="o">,</span><span class="n">RUNNING</span><span class="o">,</span><span class="n">MULTICAST</span><span class="o">&gt;</span><span class="w">  </span><span class="n">mtu</span><span class="w"> </span><span class="mi">1500</span>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="n">wlan0</span><span class="o">:</span><span class="w"> </span><span class="n">flags</span><span class="o">=</span><span class="mi">4163</span><span class="o">&lt;</span><span class="n">UP</span><span class="o">,</span><span class="n">BROADCAST</span><span class="o">,</span><span class="n">RUNNING</span><span class="o">,</span><span class="n">MULTICAST</span><span class="o">&gt;</span><span class="w">  </span><span class="n">mtu</span><span class="w"> </span><span class="mi">1500</span>
 <span class="w">        </span><span class="n">inet</span><span class="w"> </span><span class="mf">192.168</span><span class="o">.</span><span class="mf">7.207</span><span class="w">  </span><span class="n">netmask</span><span class="w"> </span><span class="mf">255.255</span><span class="o">.</span><span class="mf">252.0</span><span class="w">  </span><span class="n">broadcast</span><span class="w"> </span><span class="mf">192.168</span><span class="o">.</span><span class="mf">7.255</span>
 <span class="w">        </span><span class="n">inet6</span><span class="w"> </span><span class="n">fe80</span><span class="o">::</span><span class="n">da3a</span><span class="o">:</span><span class="n">ddff</span><span class="o">:</span><span class="n">fe45</span><span class="o">:</span><span class="mi">863</span><span class="n">f</span><span class="w">  </span><span class="n">prefixlen</span><span class="w"> </span><span class="mi">64</span><span class="w">  </span><span class="n">scopeid</span><span class="w"> </span><span class="mh">0x20</span><span class="o">&lt;</span><span class="n">link</span><span class="o">&gt;</span>
 <span class="w">        </span><span class="n">ether</span><span class="w"> </span><span class="n">d8</span><span class="o">:</span><span class="mi">3</span><span class="n">a</span><span class="o">:</span><span class="n">dd</span><span class="o">:</span><span class="mi">45</span><span class="o">:</span><span class="mi">86</span><span class="o">:</span><span class="mi">3</span><span class="n">f</span><span class="w">  </span><span class="n">txqueuelen</span><span class="w"> </span><span class="mi">1000</span><span class="w">  </span><span class="o">(</span><span class="n">Ethernet</span><span class="o">)</span>
@@ -220,7 +272,7 @@ problem is - what's its IP address?</p>
 <span class="w">        </span><span class="n">RX</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">dropped</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">overruns</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">frame</span><span class="w"> </span><span class="mi">0</span>
 <span class="w">        </span><span class="n">TX</span><span class="w"> </span><span class="n">packets</span><span class="w"> </span><span class="mi">10826</span><span class="w">  </span><span class="n">bytes</span><span class="w"> </span><span class="mi">1248499</span><span class="w"> </span><span class="o">(</span><span class="mf">1.1</span><span class="w"> </span><span class="n">MiB</span><span class="o">)</span>
 <span class="w">        </span><span class="n">TX</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">dropped</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">overruns</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">carrier</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="n">collisions</span><span class="w"> </span><span class="mi">0</span>
-</code></pre></div>
+</code></pre></div></div>
 <p>That means I can SSH into <code>192.168.7.207</code>. This works, but it has a huge
 drawback: the IP address can change, so I need to attach a monitor/keyboard.
 This kind of obviates the need for SSH. It also produces SSH warning messages
@@ -229,8 +281,8 @@ each time the IP address changes.</p>
 <p>I use a EERO router, which has software which allows me to pin specific devices
 to specific IP addresses. So I can pin my PI to <code>192.168.7.207</code>. I don't like
 to remember a sequence of numbers, so I add an entry to my <code>/etc/hosts</code>:</p>
-<div class="codehilite"><pre><span></span><code><span class="mf">192.168.7.207</span><span class="w"> </span><span class="n">raspberry</span><span class="o">-</span><span class="n">pi</span>
-</code></pre></div>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="mf">192.168.7.207</span><span class="w"> </span><span class="n">raspberry</span><span class="o">-</span><span class="n">pi</span>
+</code></pre></div></div>
 <p>Now I can disconnect my monitor/keyboard and <code>ssh raspberry-pi</code>. But there are still some drawbacks:</p>
 <ol>
 <li>
@@ -248,7 +300,7 @@ to remember a sequence of numbers, so I add an entry to my <code>/etc/hosts</cod
 raspberry-pi to publish its name via <a href="https://en.wikipedia.org/wiki/Multicast_DNS">Multicast
 DNS</a> (aka mDNS). The software to do this for
 Linux is <a href="https://avahi.org/">Avahi</a>. On NixOS this can be setup as follows:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nx">networking</span><span class="p">.</span><span class="nx">hostName</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"raspberry-pi"</span><span class="p">;</span>
 
 <span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nx">Enable</span><span class="w"> </span><span class="nx">LAN</span><span class="w"> </span><span class="nx">hostname</span><span class="w"> </span><span class="nx">resolution</span><span class="w"> </span><span class="p">(</span><span class="nx">so</span><span class="w"> </span><span class="nx">other</span><span class="w"> </span><span class="nx">machines</span><span class="w"> </span><span class="nx">on</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">same</span><span class="w"> </span><span class="nx">LAN</span><span class="w"> </span><span class="nx">can</span><span class="w"> </span><span class="nx">find</span>
@@ -266,7 +318,7 @@ Linux is <a href="https://avahi.org/">Avahi</a>. On NixOS this can be setup as f
 <span class="w">      </span><span class="p">};</span>
 <span class="w">  </span><span class="p">};</span>
 <span class="p">}</span>
-</code></pre></div>
+</code></pre></div></div>
 <p>With mDNS I can ssh into my Pi with <code>ssh raspberry-pi.local</code>. Any machine on
 the same LAN can resolve this address. I don't need any external configuration.</p>
 <br/>

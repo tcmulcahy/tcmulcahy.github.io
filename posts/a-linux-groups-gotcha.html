@@ -124,11 +124,12 @@
         }
 
         .anchor-symbol {
-          font-family: sans-serif; /* Or another common set */
+          font-family: sans-serif;
           position: absolute;
           left: 0; /* Position at the header's left edge */
           transform: translateX(-100%); /* Shift it just left of that edge */
-          visibility: hidden; /* Hidden by default */
+          opacity: 0;
+          transition: opacity 0.3s ease;
           text-decoration: none;
           color: inherit; /* Match the header text color */
           font-size: 0.9em; /* Adjust size if desired */
@@ -141,7 +142,7 @@
         h4:hover .anchor-symbol,
         h5:hover .anchor-symbol,
         h6:hover .anchor-symbol {
-          visibility: visible;
+          opacity: 1;
           text-decoration: none;
         }
 
@@ -203,35 +204,86 @@
         .codehilite .w {
             color: var(--code-whitespace);
         }
+
+        .code-block-container {
+          position: relative;  /* So the button can be absolutely positioned */
+          margin: 1em 0;       /* Optional spacing around code blocks */
+        }
+
+        .code-block-container pre {
+          overflow: auto;       /* Horizontal scroll if needed */
+        }
+
+        /* The copy icon button, initially hidden */
+        .copy-btn {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          border: none;
+          border-radius: 4px;
+          background-color: #666; /* Feel free to choose any color */
+          color: #fff;
+          cursor: pointer;
+          font-size: 1.25em;
+        }
+
+        /* Show the button when hovering over the container */
+        .code-block-container:hover .copy-btn {
+          opacity: 1;
+        }
     </style>
+<script>
+         document.addEventListener("DOMContentLoaded", () => {
+          document.querySelectorAll(".copy-btn").forEach(button => {
+            button.addEventListener("click", () => {
+              // Find the associated code block inside the same container
+              const container = button.closest(".code-block-container");
+              const codeElem = container.querySelector("code");
+              const codeText = codeElem.textContent || codeElem.innerText;
+
+              // Copy the text to clipboard
+              navigator.clipboard.writeText(codeText).then(() => {
+                const original = button.textContent;
+                button.textContent = "✓";
+                setTimeout(() => button.textContent = original, 1500);
+              }).catch(err => {
+                console.error("Failed to copy", err);
+                button.textContent = "Error";
+              });
+            });
+          });
+        });
+    </script>
 </head>
 <body>
 <h1>A Linux groups gotcha</h1>
 <p><i>You have to log out and log back in after adding yourself to a group</i></p>
 <p>Suppose you add yourself to a group with:</p>
-<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>examplegroup<span class="w"> </span><span class="nv">$USER</span>
-</code></pre></div>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>examplegroup<span class="w"> </span><span class="nv">$USER</span>
+</code></pre></div></div>
 <p>You might expect that you can immediately view all files with the new
 permissions afforded to you by your membership in <code>examplegroup</code>. Alas, no. 
 Your group memberships are cached in your session. To see what groups you are
 effectively a part of (for the current session) with:</p>
-<div class="codehilite"><pre><span></span><code>id
-</code></pre></div>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code>id
+</code></pre></div></div>
 <p>To see what groups you're in globally (as stored in /etc/group), use:</p>
-<div class="codehilite"><pre><span></span><code>groups<span class="w"> </span><span class="nv">$USER</span>
-</code></pre></div>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code>groups<span class="w"> </span><span class="nv">$USER</span>
+</code></pre></div></div>
 <p>You can "remove" yourself from a group with:</p>
-<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>gpasswd<span class="w"> </span>--delete<span class="w"> </span><span class="nv">$USER</span><span class="w"> </span>examplegroup
-</code></pre></div>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code>sudo<span class="w"> </span>gpasswd<span class="w"> </span>--delete<span class="w"> </span><span class="nv">$USER</span><span class="w"> </span>examplegroup
+</code></pre></div></div>
 <p>but you'll still have permissions associated with examplegroup (due to the session cache).</p>
 <p>The easiest way to update your effective groups is to log out and log back in.
 If you want to make sure there aren't any processes around with the stale
 groups info, you can kill them all:</p>
-<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>pkill<span class="w"> </span>-u<span class="w"> </span><span class="nv">$USER</span>
-</code></pre></div>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code>sudo<span class="w"> </span>pkill<span class="w"> </span>-u<span class="w"> </span><span class="nv">$USER</span>
+</code></pre></div></div>
 <p>If you just added yourself to a new group, you can update your membership in that group with:</p>
-<div class="codehilite"><pre><span></span><code>newgrp<span class="w"> </span>examplegroup
-</code></pre></div>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code>newgrp<span class="w"> </span>examplegroup
+</code></pre></div></div>
 <p>However, it has side-effects. It starts a new shell, and changes the current real
 group ID to the specified group, meaning any files you create will be
 associated with that group. So I think it's better to log out and log back in.</p>

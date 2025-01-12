@@ -124,11 +124,12 @@
         }
 
         .anchor-symbol {
-          font-family: sans-serif; /* Or another common set */
+          font-family: sans-serif;
           position: absolute;
           left: 0; /* Position at the header's left edge */
           transform: translateX(-100%); /* Shift it just left of that edge */
-          visibility: hidden; /* Hidden by default */
+          opacity: 0;
+          transition: opacity 0.3s ease;
           text-decoration: none;
           color: inherit; /* Match the header text color */
           font-size: 0.9em; /* Adjust size if desired */
@@ -141,7 +142,7 @@
         h4:hover .anchor-symbol,
         h5:hover .anchor-symbol,
         h6:hover .anchor-symbol {
-          visibility: visible;
+          opacity: 1;
           text-decoration: none;
         }
 
@@ -203,7 +204,58 @@
         .codehilite .w {
             color: var(--code-whitespace);
         }
+
+        .code-block-container {
+          position: relative;  /* So the button can be absolutely positioned */
+          margin: 1em 0;       /* Optional spacing around code blocks */
+        }
+
+        .code-block-container pre {
+          overflow: auto;       /* Horizontal scroll if needed */
+        }
+
+        /* The copy icon button, initially hidden */
+        .copy-btn {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          border: none;
+          border-radius: 4px;
+          background-color: #666; /* Feel free to choose any color */
+          color: #fff;
+          cursor: pointer;
+          font-size: 1.25em;
+        }
+
+        /* Show the button when hovering over the container */
+        .code-block-container:hover .copy-btn {
+          opacity: 1;
+        }
     </style>
+<script>
+         document.addEventListener("DOMContentLoaded", () => {
+          document.querySelectorAll(".copy-btn").forEach(button => {
+            button.addEventListener("click", () => {
+              // Find the associated code block inside the same container
+              const container = button.closest(".code-block-container");
+              const codeElem = container.querySelector("code");
+              const codeText = codeElem.textContent || codeElem.innerText;
+
+              // Copy the text to clipboard
+              navigator.clipboard.writeText(codeText).then(() => {
+                const original = button.textContent;
+                button.textContent = "✓";
+                setTimeout(() => button.textContent = original, 1500);
+              }).catch(err => {
+                console.error("Failed to copy", err);
+                button.textContent = "Error";
+              });
+            });
+          });
+        });
+    </script>
 </head>
 <body>
 <h1>Frustrations with Google Takeout</h1>
@@ -274,7 +326,7 @@ double-checking the results. Here's the code in case it helps someone else.</p>
 ill intent. Google probably made the decision to not allow ownership transfer
 outside of the organization because it'd be rather catastrophic if you
 transferred ownership accidentally.</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">google.auth</span>
 <span class="kn">from</span> <span class="nn">google.auth.transport.requests</span> <span class="kn">import</span> <span class="n">Request</span>
@@ -390,10 +442,10 @@ transferred ownership accidentally.</p>
     <span class="n">source_folder_id</span> <span class="o">=</span> <span class="s1">'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'</span>  <span class="c1"># Replace with your source folder ID</span>
     <span class="n">destination_folder_id</span> <span class="o">=</span> <span class="s1">'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY'</span>  <span class="c1"># Replace with your destination folder ID</span>
     <span class="n">copy_drive_folder</span><span class="p">(</span><span class="n">source_folder_id</span><span class="p">,</span> <span class="n">destination_folder_id</span><span class="p">)</span>
-</code></pre></div>
+</code></pre></div></div>
 <p>You'll also need to pip install dependencies:</p>
-<div class="codehilite"><pre><span></span><code>pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
-</code></pre></div>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code>pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+</code></pre></div></div>
 <h2 id="gmail-solution"><a class="heading-link" href="#gmail-solution">Gmail Solution<span class="anchor-symbol" style="padding-right: 20px; margin-left: 8px;">¶</span></a></h2>
 <p>I didn't really have much of a problem here because I've been forwarding my
 email from my Google Workspace account to my personal account for years. I've

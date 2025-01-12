@@ -124,11 +124,12 @@
         }
 
         .anchor-symbol {
-          font-family: sans-serif; /* Or another common set */
+          font-family: sans-serif;
           position: absolute;
           left: 0; /* Position at the header's left edge */
           transform: translateX(-100%); /* Shift it just left of that edge */
-          visibility: hidden; /* Hidden by default */
+          opacity: 0;
+          transition: opacity 0.3s ease;
           text-decoration: none;
           color: inherit; /* Match the header text color */
           font-size: 0.9em; /* Adjust size if desired */
@@ -141,7 +142,7 @@
         h4:hover .anchor-symbol,
         h5:hover .anchor-symbol,
         h6:hover .anchor-symbol {
-          visibility: visible;
+          opacity: 1;
           text-decoration: none;
         }
 
@@ -203,7 +204,58 @@
         .codehilite .w {
             color: var(--code-whitespace);
         }
+
+        .code-block-container {
+          position: relative;  /* So the button can be absolutely positioned */
+          margin: 1em 0;       /* Optional spacing around code blocks */
+        }
+
+        .code-block-container pre {
+          overflow: auto;       /* Horizontal scroll if needed */
+        }
+
+        /* The copy icon button, initially hidden */
+        .copy-btn {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          border: none;
+          border-radius: 4px;
+          background-color: #666; /* Feel free to choose any color */
+          color: #fff;
+          cursor: pointer;
+          font-size: 1.25em;
+        }
+
+        /* Show the button when hovering over the container */
+        .code-block-container:hover .copy-btn {
+          opacity: 1;
+        }
     </style>
+<script>
+         document.addEventListener("DOMContentLoaded", () => {
+          document.querySelectorAll(".copy-btn").forEach(button => {
+            button.addEventListener("click", () => {
+              // Find the associated code block inside the same container
+              const container = button.closest(".code-block-container");
+              const codeElem = container.querySelector("code");
+              const codeText = codeElem.textContent || codeElem.innerText;
+
+              // Copy the text to clipboard
+              navigator.clipboard.writeText(codeText).then(() => {
+                const original = button.textContent;
+                button.textContent = "✓";
+                setTimeout(() => button.textContent = original, 1500);
+              }).catch(err => {
+                console.error("Failed to copy", err);
+                button.textContent = "Error";
+              });
+            });
+          });
+        });
+    </script>
 </head>
 <body>
 <h1>https-enabled subdomain forwarding, with Github Pages</h1>
@@ -222,7 +274,7 @@ different subdomains all pointing to the same URL.</p>
 <h2 id="step-2-create-a-subdomain-redirect-github-project"><a class="heading-link" href="#step-2-create-a-subdomain-redirect-github-project">Step 2 - Create a subdomain-redirect Github project<span class="anchor-symbol" style="padding-right: 20px; margin-left: 8px;">¶</span></a></h2>
 <p>I created a separate GitHub repository (public, to use the free tier) with a simple index.html file in the root directory to handle the redirect.</p>
 <p>Here’s the content of my index.html:</p>
-<div class="codehilite"><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
 <span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
 <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
     <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">http-equiv</span><span class="o">=</span><span class="s">"refresh"</span> <span class="na">content</span><span class="o">=</span><span class="s">"0; url=https://example.com"</span><span class="p">&gt;</span>
@@ -231,7 +283,7 @@ different subdomains all pointing to the same URL.</p>
     <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Redirecting to <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">"https://example.com"</span><span class="p">&gt;</span>https://example.com<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
+</code></pre></div></div>
 <h2 id="step-3-configure-the-github-project-to-use-the-subdomain"><a class="heading-link" href="#step-3-configure-the-github-project-to-use-the-subdomain">Step 3 - Configure the Github project to use the subdomain<span class="anchor-symbol" style="padding-right: 20px; margin-left: 8px;">¶</span></a></h2>
 <p>Under <strong>Settings</strong> -&gt; <strong>Pages</strong>, I selected the main branch as the source for the Pages
 site. Then, under <strong>Custom Domain</strong>, I specified my subdomain (e.g.

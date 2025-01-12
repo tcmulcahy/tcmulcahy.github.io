@@ -163,6 +163,18 @@
                         padding: 16px;
                     }
 
+                    code {
+                        background: var(--code-background);
+                        color: var(--code-text);
+                        padding-top: 4px;
+                        padding-bottom: 4px;
+                    }
+
+                    pre > code {
+                        /* Remove extra padding added in the code rule above */
+                        padding: 0;
+                    }
+
                     .codehilite {
                         background: var(--code-background);
                         color: var(--code-text);

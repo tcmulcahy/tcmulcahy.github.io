@@ -1,253 +1,252 @@
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>About</title>
-                <style>
-                    :root {
-                        /* Light Mode */
-                        --background-color: white;
-                        --text-color: black;
-                        --link-color: blue;
-                        --visited-link-color: purple;
-                        --hover-link-color: darkorange;
-                        --active-link-color: red;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About</title>
+    <style>
+        :root {
+            /* Light Mode */
+            --background-color: white;
+            --text-color: black;
+            --link-color: blue;
+            --visited-link-color: purple;
+            --hover-link-color: darkorange;
+            --active-link-color: red;
 
-                        /* Post Entries */
-                        --post-date-color: gray;
-                        --post-title-color: black;
-                        --post-tags-color: blue;
+            /* Post Entries */
+            --post-date-color: gray;
+            --post-title-color: black;
+            --post-tags-color: blue;
 
-                        /* Code Block */
-                        --code-background: #f5f5f5;
-                        --code-text: #333333;
-                        --code-keyword: #0000ff;
-                        --code-operator: #000000;
-                        --code-punctuation: #333333;
-                        --code-special-bg: #ffffc0;
-                        --code-special-text: #000000;
-                        --code-highlight-line: #ffffcc;
-                        --code-whitespace: #c0c0c0;
-                    }
+            /* Code Block */
+            --code-background: #f5f5f5;
+            --code-text: #333333;
+            --code-keyword: #0000ff;
+            --code-operator: #000000;
+            --code-punctuation: #333333;
+            --code-special-bg: #ffffc0;
+            --code-special-text: #000000;
+            --code-highlight-line: #ffffcc;
+            --code-whitespace: #c0c0c0;
+        }
 
-                    @media (prefers-color-scheme: dark) {
-                        :root {
-                            /* Dark Mode */
-                            --background-color: black;
-                            --text-color: white;
-                            --link-color: #1E90FF;
-                            --visited-link-color: #9370DB;
-                            --hover-link-color: #FFD700;
-                            --active-link-color: #FF4500;
+        @media (prefers-color-scheme: dark) {
+            :root {
+                /* Dark Mode */
+                --background-color: black;
+                --text-color: white;
+                --link-color: #1E90FF;
+                --visited-link-color: #9370DB;
+                --hover-link-color: #FFD700;
+                --active-link-color: #FF4500;
 
-                            /* Post Entries */
-                            --post-date-color: #cccccc;
-                            --post-title-color: white;
-                            --post-tags-color: #1E90FF;
+                /* Post Entries */
+                --post-date-color: #cccccc;
+                --post-title-color: white;
+                --post-tags-color: #1E90FF;
 
-                            /* Code Block */
-                            --code-background: #272727;
-                            --code-text: #e0e0e0;
-                            --code-keyword: #ffffff;
-                            --code-operator: #ffffff;
-                            --code-punctuation: #ffffff;
-                            --code-special-bg: #ffffc0;
-                            --code-special-text: #000000;
-                            --code-highlight-line: #ffffcc;
-                            --code-whitespace: #c0c0c0;
-                        }
-                    }
+                /* Code Block */
+                --code-background: #272727;
+                --code-text: #e0e0e0;
+                --code-keyword: #ffffff;
+                --code-operator: #ffffff;
+                --code-punctuation: #ffffff;
+                --code-special-bg: #ffffc0;
+                --code-special-text: #000000;
+                --code-highlight-line: #ffffcc;
+                --code-whitespace: #c0c0c0;
+            }
+        }
 
-                    body {
-                        background-color: var(--background-color);
-                        color: var(--text-color);
-                        padding: 20px;
-                        margin: 0 auto;
-                        max-width: 60em;
-                    }
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 20px;
+            margin: 0 auto;
+            max-width: 60em;
+        }
 
-                    .navbar {
-                        display: flex;
-                        flex-direction: row;
-                        justify-content: space-between;
-                        padding: 0.5em;
-                    }
+        .navbar {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding: 0.5em;
+        }
 
-                    .post-list {
-                        width: 100%;
-                    }
+        .post-list {
+            width: 100%;
+        }
 
-                    .post-entry {
-                        width: 100%;
-                        display: flex;
-                        justify-content: space-between;
-                        padding: 0.5em 0;
-                    }
+        .post-entry {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5em 0;
+        }
 
-                    .post-date {
-                        color: var(--post-date-color);
-                        text-align: left;
-                    }
+        .post-date {
+            color: var(--post-date-color);
+            text-align: left;
+        }
 
-                    .post-title {
-                        color: var(--post-title-color);
-                        margin-left: 1em;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                    }
+        .post-title {
+            color: var(--post-title-color);
+            margin-left: 1em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-                    .post-tags {
-                        flex: 0 0 10em;
-                        text-align: right;
-                        margin-left: auto; /* push text to the right */
-                    }
+        .post-tags {
+            flex: 0 0 10em;
+            text-align: right;
+            margin-left: auto; /* push text to the right */
+        }
 
-                    a {
-                        color: var(--link-color);
-                        text-decoration: none;
-                        transition: color 0.3s ease;
-                    }
+        a {
+            color: var(--link-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
 
-                    a:visited {
-                        color: var(--visited-link-color);
-                    }
+        a:visited {
+            color: var(--visited-link-color);
+        }
 
-                    a:hover {
-                        color: var(--hover-link-color);
-                        text-decoration: underline;
-                    }
+        a:hover {
+            color: var(--hover-link-color);
+            text-decoration: underline;
+        }
 
-                    a:active {
-                        color: var(--active-link-color);
-                    }
+        a:active {
+            color: var(--active-link-color);
+        }
 
-                    .anchor-symbol {
-                      font-family: sans-serif;
-                      position: absolute;
-                      left: 0; /* Position at the header's left edge */
-                      transform: translateX(-100%); /* Shift it just left of that edge */
-                      opacity: 0;
-                      transition: opacity 0.3s ease;
-                      text-decoration: none;
-                      color: inherit; /* Match the header text color */
-                      font-size: 0.9em; /* Adjust size if desired */
-                      line-height: 1; /* Helps vertically center icon with text */
-                    }
+        .anchor-symbol {
+          font-family: sans-serif;
+          position: absolute;
+          left: 0; /* Position at the header's left edge */
+          transform: translateX(-100%); /* Shift it just left of that edge */
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          text-decoration: none;
+          color: inherit; /* Match the header text color */
+          font-size: 0.9em; /* Adjust size if desired */
+          line-height: 1; /* Helps vertically center icon with text */
+        }
 
-                    h1:hover .anchor-symbol,
-                    h2:hover .anchor-symbol,
-                    h3:hover .anchor-symbol,
-                    h4:hover .anchor-symbol,
-                    h5:hover .anchor-symbol,
-                    h6:hover .anchor-symbol {
-                      opacity: 1;
-                      text-decoration: none;
-                    }
+        h1:hover .anchor-symbol,
+        h2:hover .anchor-symbol,
+        h3:hover .anchor-symbol,
+        h4:hover .anchor-symbol,
+        h5:hover .anchor-symbol,
+        h6:hover .anchor-symbol {
+          opacity: 1;
+          text-decoration: none;
+        }
 
-                    .heading-link,
-                    .heading-link:visited,
-                    .heading-link:hover,
-                    .heading-link:active,
-                    .heading-link:focus {
-                      color: inherit;
-                      text-decoration: none;
-                    }
+        .heading-link,
+        .heading-link:visited,
+        .heading-link:hover,
+        .heading-link:active,
+        .heading-link:focus {
+          color: inherit;
+          text-decoration: none;
+        }
 
-                    h1, h2, h3, h4, h5, h6 {
-                      position: relative;
-                    }
+        h1, h2, h3, h4, h5, h6 {
+          position: relative;
+        }
 
-                    /* Code Blocks */
-                    pre {
-                        line-height: 125%;
-                        padding: 16px;
-                    }
+        /* Code Blocks */
+        pre {
+            line-height: 125%;
+            padding: 16px;
+        }
 
-                    code {
-                        background: var(--code-background);
-                        color: var(--code-text);
-                        padding-top: 4px;
-                        padding-bottom: 4px;
-                    }
+        code {
+            background: var(--code-background);
+            color: var(--code-text);
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
 
-                    pre > code {
-                        /* Remove extra padding added in the code rule above */
-                        padding: 0;
-                    }
+        pre > code {
+            /* Remove extra padding added in the code rule above */
+            padding: 0;
+        }
 
-                    .codehilite {
-                        background: var(--code-background);
-                        color: var(--code-text);
-                    }
+        .codehilite {
+            background: var(--code-background);
+            color: var(--code-text);
+        }
 
-                    .codehilite .k {
-                        color: var(--code-keyword);
-                        font-weight: bold;
-                    }
+        .codehilite .k {
+            color: var(--code-keyword);
+            font-weight: bold;
+        }
 
-                    .codehilite .o {
-                        color: var(--code-operator);
-                        font-weight: bold;
-                    }
+        .codehilite .o {
+            color: var(--code-operator);
+            font-weight: bold;
+        }
 
-                    .codehilite .p {
-                        color: var(--code-punctuation);
-                        font-weight: bold;
-                    }
+        .codehilite .p {
+            color: var(--code-punctuation);
+            font-weight: bold;
+        }
 
-                    .codehilite .hll {
-                        background-color: var(--code-highlight-line);
-                    }
+        .codehilite .hll {
+            background-color: var(--code-highlight-line);
+        }
 
-                    .codehilite .w {
-                        color: var(--code-whitespace);
-                    }
+        .codehilite .w {
+            color: var(--code-whitespace);
+        }
 
-                    .code-block-container {
-                      position: relative;  /* So the button can be absolutely positioned */
-                      margin: 1em 0;       /* Optional spacing around code blocks */
-                    }
+        .code-block-container {
+          position: relative;  /* So the button can be absolutely positioned */
+          margin: 1em 0;       /* Optional spacing around code blocks */
+        }
 
-                    .code-block-container pre {
-                      overflow: auto;       /* Horizontal scroll if needed */
-                    }
+        .code-block-container pre {
+          overflow: auto;       /* Horizontal scroll if needed */
+        }
 
-                    /* The copy icon button, initially hidden */
-                    .copy-btn {
-                      position: absolute;
-                      top: 8px;
-                      right: 8px;
-                      opacity: 0;
-                      transition: opacity 0.3s ease;
-                      border: none;
-                      border-radius: 4px;
-                      background-color: #666; /* Feel free to choose any color */
-                      color: #fff;
-                      cursor: pointer;
-                      font-size: 1.25em;
-                    }
+        /* The copy icon button, initially hidden */
+        .copy-btn {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          border: none;
+          border-radius: 4px;
+          background-color: #666; /* Feel free to choose any color */
+          color: #fff;
+          cursor: pointer;
+          font-size: 1.25em;
+        }
 
-                    /* Show the button when hovering over the container */
-                    .code-block-container:hover .copy-btn {
-                      opacity: 1;
-                    }
-                </style>
-            </head>
-            <body>
+        /* Show the button when hovering over the container */
+        .code-block-container:hover .copy-btn {
+          opacity: 1;
+        }
+    </style>
+</head>
+<body>
 
-            <h1>About</h1>
+<h1>About</h1>
 
-            <p>I'm a software developer based in the Seattle/Bellevue area.</p>
-            <p><a href="https://www.linkedin.com/in/tom-mulcahy-3363b81/">LinkedIn</a></p>
-            <p><a href="https://twitter.com/tommulcahy">Twitter</a></p>
-            <p><a href="https://androiddev.social/@tcm">Mastodon</a></p>
+<p>I'm a software developer based in the Seattle/Bellevue area.</p>
+<p><a href="https://www.linkedin.com/in/tom-mulcahy-3363b81/">LinkedIn</a></p>
+<p><a href="https://twitter.com/tommulcahy">Twitter</a></p>
+<p><a href="https://androiddev.social/@tcm">Mastodon</a></p>
 
-            <br>
+<br>
 
-            <div class="navbar">
-                <a href="/">Index</a>
-                <a href="/rss.xml">RSS</a>
-                <a href="/about.html">About</a>
-            </div>
-            
+<div class="navbar">
+    <a href="/">Index</a>
+    <a href="/rss.xml">RSS</a>
+    <a href="/about.html">About</a>
+</div>

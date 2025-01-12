@@ -8,83 +8,74 @@
     <language>en-us</language>
 
     <item>
-        <title>https-enabled subdomain forwarding, with Github Pages</title>
-        <link>https://mulcahy.ca/posts/https-enabled-subdomain-forwarding-with-github-pages.html</link>
-        <description>How to use Github Pages to forward subdomain traffic</description>
-        <pubDate>2025-01-05 07:54:02</pubDate>
-        <guid isPermaLink="true">posts/https-enabled-subdomain-forwarding-with-github-pages.html</guid>
-     </item>
-
-     <item>
-        <title>A Linux groups gotcha</title>
-        <link>https://mulcahy.ca/posts/a-linux-groups-gotcha.html</link>
-        <description>You have to log out and log back in after adding yourself to a group</description>
-        <pubDate>2024-12-27 16:47:05</pubDate>
-        <guid isPermaLink="true">posts/a-linux-groups-gotcha.html</guid>
-     </item>
-
-     <item>
-        <title>Frustrations with Google Takeout</title>
-        <link>https://mulcahy.ca/posts/frustrations-with-google-takeout.html</link>
-        <description>Problems I experienced with Google Takeout and how I worked around them</description>
-        <pubDate>2024-12-27 06:08:28</pubDate>
-        <guid isPermaLink="true">posts/frustrations-with-google-takeout.html</guid>
-     </item>
-
-     <item>
-        <title>CLIs with updating statuses</title>
-        <link>https://mulcahy.ca/posts/clis-with-updating-statuses.html</link>
-        <description>Different methods for updating statuses inside a CLI</description>
-        <pubDate>2024-12-22 17:54:36</pubDate>
-        <guid isPermaLink="true">posts/clis-with-updating-statuses.html</guid>
-     </item>
-
-     <item>
-        <title>Configuring computer names within a LAN</title>
-        <link>https://mulcahy.ca/posts/configuring-computer-names-within-a-lan.html</link>
-        <description>How to publish a computer name to Multicast DNS</description>
-        <pubDate>2023-12-29 11:29:34</pubDate>
-        <guid isPermaLink="true">posts/configuring-computer-names-within-a-lan.html</guid>
-     </item>
-
-     <item>
-        <title>Avoiding shell double-evaluation</title>
-        <link>https://mulcahy.ca/posts/avoiding-shell-double-evaluation.html</link>
-        <description>How to avoid double-evaluating commands in ssh / adb shell / etc.</description>
-        <pubDate>2023-11-22 12:44:21</pubDate>
-        <guid isPermaLink="true">posts/avoiding-shell-double-evaluation.html</guid>
-     </item>
-
-     <item>
-        <title>Better multiline string templates</title>
-        <link>https://mulcahy.ca/posts/better-multiline-string-templates.html</link>
-        <description>Subtle problems with templates in multiline strings and some ways to fix them</description>
-        <pubDate>2023-11-21 17:12:31</pubDate>
-        <guid isPermaLink="true">posts/better-multiline-string-templates.html</guid>
-     </item>
-
-     <item>
-        <title>Clearing the terminal scrollback</title>
-        <link>https://mulcahy.ca/posts/clearing-the-terminal-scrollback.html</link>
-        <description>Making clear work the way I think it should</description>
-        <pubDate>2023-11-19 21:29:59</pubDate>
-        <guid isPermaLink="true">posts/clearing-the-terminal-scrollback.html</guid>
-     </item>
-
-     <item>
-        <title>Simple password generator in Python</title>
-        <link>https://mulcahy.ca/posts/simple-password-generator-in-python.html</link>
-        <description>3 line Python script for generating secure passwords</description>
-        <pubDate>2023-11-18 16:28:22</pubDate>
-        <guid isPermaLink="true">posts/simple-password-generator-in-python.html</guid>
-     </item>
-
-     <item>
-        <title>logcat, but just one package</title>
-        <link>https://mulcahy.ca/posts/logcat-package.html</link>
-        <description>A shell script for limiting logcat output to a single package</description>
-        <pubDate>2023-09-17 08:46:11</pubDate>
-        <guid isPermaLink="true">posts/logcat-package.html</guid>
-     </item>
+       <title>https-enabled subdomain forwarding, with Github Pages</title>
+       <link>https://mulcahy.ca/posts/https-enabled-subdomain-forwarding-with-github-pages.html</link>
+       <description>How to use Github Pages to forward subdomain traffic</description>
+       <pubDate>2025-01-05 07:54:02</pubDate>
+       <guid isPermaLink="true">posts/https-enabled-subdomain-forwarding-with-github-pages.html</guid>
+    </item>
+    <item>
+       <title>A Linux groups gotcha</title>
+       <link>https://mulcahy.ca/posts/a-linux-groups-gotcha.html</link>
+       <description>You have to log out and log back in after adding yourself to a group</description>
+       <pubDate>2024-12-27 16:47:05</pubDate>
+       <guid isPermaLink="true">posts/a-linux-groups-gotcha.html</guid>
+    </item>
+    <item>
+       <title>Frustrations with Google Takeout</title>
+       <link>https://mulcahy.ca/posts/frustrations-with-google-takeout.html</link>
+       <description>Problems I experienced with Google Takeout and how I worked around them</description>
+       <pubDate>2024-12-27 06:08:28</pubDate>
+       <guid isPermaLink="true">posts/frustrations-with-google-takeout.html</guid>
+    </item>
+    <item>
+       <title>CLIs with updating statuses</title>
+       <link>https://mulcahy.ca/posts/clis-with-updating-statuses.html</link>
+       <description>Different methods for updating statuses inside a CLI</description>
+       <pubDate>2024-12-22 17:54:36</pubDate>
+       <guid isPermaLink="true">posts/clis-with-updating-statuses.html</guid>
+    </item>
+    <item>
+       <title>Configuring computer names within a LAN</title>
+       <link>https://mulcahy.ca/posts/configuring-computer-names-within-a-lan.html</link>
+       <description>How to publish a computer name to Multicast DNS</description>
+       <pubDate>2023-12-29 11:29:34</pubDate>
+       <guid isPermaLink="true">posts/configuring-computer-names-within-a-lan.html</guid>
+    </item>
+    <item>
+       <title>Avoiding shell double-evaluation</title>
+       <link>https://mulcahy.ca/posts/avoiding-shell-double-evaluation.html</link>
+       <description>How to avoid double-evaluating commands in ssh / adb shell / etc.</description>
+       <pubDate>2023-11-22 12:44:21</pubDate>
+       <guid isPermaLink="true">posts/avoiding-shell-double-evaluation.html</guid>
+    </item>
+    <item>
+       <title>Better multiline string templates</title>
+       <link>https://mulcahy.ca/posts/better-multiline-string-templates.html</link>
+       <description>Subtle problems with templates in multiline strings and some ways to fix them</description>
+       <pubDate>2023-11-21 17:12:31</pubDate>
+       <guid isPermaLink="true">posts/better-multiline-string-templates.html</guid>
+    </item>
+    <item>
+       <title>Clearing the terminal scrollback</title>
+       <link>https://mulcahy.ca/posts/clearing-the-terminal-scrollback.html</link>
+       <description>Making clear work the way I think it should</description>
+       <pubDate>2023-11-19 21:29:59</pubDate>
+       <guid isPermaLink="true">posts/clearing-the-terminal-scrollback.html</guid>
+    </item>
+    <item>
+       <title>Simple password generator in Python</title>
+       <link>https://mulcahy.ca/posts/simple-password-generator-in-python.html</link>
+       <description>3 line Python script for generating secure passwords</description>
+       <pubDate>2023-11-18 16:28:22</pubDate>
+       <guid isPermaLink="true">posts/simple-password-generator-in-python.html</guid>
+    </item>
+    <item>
+       <title>logcat, but just one package</title>
+       <link>https://mulcahy.ca/posts/logcat-package.html</link>
+       <description>A shell script for limiting logcat output to a single package</description>
+       <pubDate>2023-09-17 08:46:11</pubDate>
+       <guid isPermaLink="true">posts/logcat-package.html</guid>
+    </item>
 </channel>
 </rss>

@@ -79,22 +79,25 @@
         }
 
         .post-entry {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5em 0;
+            display: grid;
+            grid-template-columns: 60px 1fr auto; /* Fixed width for date, flexible width for title, auto for tags */
+            gap: 1em; /* Space between columns */
+            align-items: center; /* Ensures vertical alignment */
+            padding: 0.5em 0; /* Spacing between posts */
         }
 
         .post-date {
             color: var(--post-date-color);
             text-align: left;
+            font-size: 0.9em;
+            white-space: nowrap; /* Prevents wrapping */
         }
 
         .post-title {
             color: var(--post-title-color);
-            margin-left: 1em;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            overflow: hidden; /* Ensures text doesn't overflow */
+            text-overflow: ellipsis; /* Adds ellipsis for long titles */
+            white-space: nowrap; /* Prevents wrapping */
         }
 
         .post-tags {

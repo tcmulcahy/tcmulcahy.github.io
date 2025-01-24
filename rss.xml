@@ -8,6 +8,13 @@
     <language>en-us</language>
 
     <item>
+       <title>Invoking scripts that handle CTRL-C from Kotlin/Java</title>
+       <link>https://mulcahy.ca/posts/invoking-scripts-that-handle-ctrl-c-from-kotlin-java.html</link>
+       <description>Invoking scripts that handle CTRL-C from Kotlin/Java</description>
+       <pubDate>2025-01-23 17:48:13</pubDate>
+       <guid isPermaLink="true">posts/invoking-scripts-that-handle-ctrl-c-from-kotlin-java.html</guid>
+    </item>
+    <item>
        <title>https-enabled subdomain forwarding, with Github Pages</title>
        <link>https://mulcahy.ca/posts/https-enabled-subdomain-forwarding-with-github-pages.html</link>
        <description>How to use Github Pages to forward subdomain traffic</description>

@@ -271,7 +271,8 @@ handle CTRL-C on its own, with a little help from the shell.</p>
 <p>What if you don't want to use the shell? Originally I didn't realize the shell
 could solve this problem, so I started to write a Python script to help. My
 first attempt was along these lines:</p>
-<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="c1"># Incorrect code - doesn't work</span>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="c1"># Incorrect code - hangs on the call to tcsetpgrp</span>
+
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 

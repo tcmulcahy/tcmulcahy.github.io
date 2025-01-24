@@ -8,6 +8,13 @@
     <language>en-us</language>
 
     <item>
+       <title>A Unix process coup d'etat</title>
+       <link>https://mulcahy.ca/posts/a-unix-process-coup-detat.html</link>
+       <description>How to put a Unix process in sole control of the terminal (and why you shouldn't do that)</description>
+       <pubDate>2025-01-23 20:05:25</pubDate>
+       <guid isPermaLink="true">posts/a-unix-process-coup-detat.html</guid>
+    </item>
+    <item>
        <title>Invoking scripts that handle CTRL-C from Kotlin/Java</title>
        <link>https://mulcahy.ca/posts/invoking-scripts-that-handle-ctrl-c-from-kotlin-java.html</link>
        <description>Invoking scripts that handle CTRL-C from Kotlin/Java</description>

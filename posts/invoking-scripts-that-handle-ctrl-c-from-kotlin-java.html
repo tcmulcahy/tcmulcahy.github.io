@@ -272,11 +272,11 @@
 that collect profiling information until CTRL-C is pressed. After CTRL-C they
 will flush the profiling data and pull it from the device.</p>
 <p>If you try to invoke these scripts from inside a Kotlin script (or any
-Kotlin/Java program in general) then the profiler script will run inside the
+Kotlin/Java program in general) then the inner script will run inside the
 same process group as the Kotlin script, which means that any signal (such as
 the SIGINT that is generated in response to CTRL-C) will be received by both
 processes simultaneously. The Kotlin script will exit almost immediately,
-before the profiler script has finished flushing/pulling.</p>
+before the inner script has finished flushing/pulling.</p>
 <p>How do you fix it?</p>
 <div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="kd">val</span><span class="w"> </span><span class="nv">executable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"app_profiler.py"</span>
 <span class="kd">val</span><span class="w"> </span><span class="nv">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">listOf</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">()</span>
@@ -285,11 +285,12 @@ before the profiler script has finished flushing/pulling.</p>
 <span class="w">    </span><span class="p">.</span><span class="na">start</span><span class="p">()</span>
 <span class="w">    </span><span class="p">.</span><span class="na">waitFor</span><span class="p">()</span>
 </code></pre></div></div>
-<p><code>-i</code> forces the shell to run interactively, even though we are passing a
-command with <code>-c</code>. In interactive mode the shell handles job control - it runs
-its child in a separate process group, as the terminal owner. This means the
-child receives signals, not the parent (And the shell handles some other
-signals too - it's actually somewhat involved to handle job control correctly)</p>
+<p>We run our inner script via the shell. <code>-i</code> forces the shell to run
+interactively, even though we are passing a command with <code>-c</code>. In interactive
+mode the shell handles job control - it runs its child in a separate process
+group, as the terminal owner. This means the child receives signals, not the
+parent (And the shell handles some other signals too - it's actually somewhat
+involved to handle job control correctly)</p>
 <p>The <code>"$0" "$@"</code> stuff is just a small trick to avoid string splitting issues.
 If you know your arguments exactly and they don't contain any spaces you can
 provide your command to <code>sh</code> as a single string.</p>

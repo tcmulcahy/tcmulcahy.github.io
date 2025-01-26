@@ -1,95 +1,1052 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0">
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
 
 <channel>
     <title>Tom Mulcahy's blog</title>
     <link>https://mulcahy.ca</link>
     <description>Tom Mulcahy's blog</description>
     <language>en-us</language>
+    <atom:link href="https://mulcahy.ca/rss.xml" rel="self" type="application/rss+xml" />
 
     <item>
        <title>A Unix process coup d'etat</title>
        <link>https://mulcahy.ca/posts/a-unix-process-coup-detat.html</link>
        <description>How to put a Unix process in sole control of the terminal (and why you shouldn't do that)</description>
-       <pubDate>2025-01-23 20:05:25</pubDate>
-       <guid isPermaLink="true">posts/a-unix-process-coup-detat.html</guid>
+       <pubDate>Thu, 23 Jan 2025 20:05:25 -0800</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/a-unix-process-coup-detat.html</guid>
+       <content:encoded><![CDATA[
+    <h1>A Unix process coup d'etat</h1>
+    <p><i>How to put a Unix process in sole control of the terminal (and why you shouldn't do that)</i></p>
+    <p>In a <a href="https://mulcahy.ca/posts/invoking-scripts-that-handle-ctrl-c-from-kotlin-java.html">previous post</a>
+    I described how a Kotlin script can invoke an inner script and allow it to
+    handle CTRL-C on its own, with a little help from the shell.</p>
+    <p>What if you don't want to use the shell? Originally I didn't realize the shell
+    could solve this problem, so I started to write a Python script to help. My
+    first attempt was along these lines:</p>
+    <pre><code class="language-python"># Incorrect code - hangs on the call to tcsetpgrp
+
+    import os
+    import sys
+
+    mypid = os.getpid()
+    os.setpgid(mypid, mypid)
+    os.tcsetpgrp(0, mypid)
+    os.execvp(sys.argv[0], sys.argv)
+    </code></pre>
+    <p>The idea is to take in a command (and args) and run them, after first setting
+    up the process in a new process group so signals don't get sent to the parent
+    (setpgid) and making that process group the foreground process group of the
+    terminal, so it receives input/signals (tcsetpgrp).</p>
+    <p>It turns out this doesn't work. You can't call tcsetpgrp unless you are part of
+    a process group that is currently foreground. The foreground process group can
+    relinquish control to some other process group, but a non-foreground process
+    group can't make itself the foreground process group.</p>
+    <p>So I got the idea to pull off a Unix process coup d'etat:</p>
+    <pre><code class="language-python"># Almost correct code
+
+    import os
+    import sys
+
+    parent_pid = os.getpid()
+    assert os.isatty(0), "This only works if stdin is a tty"
+    assert os.tcgetpgrp(0) == os.getpgid(parent_pid), "This only works if we're currently in control"
+
+    # Fork to create a puppet process
+    pid = os.fork()
+    puppet_pid = pid or os.getpid()
+
+    # Install puppet terminal ruler
+    os.setpgid(puppet_pid, puppet_pid)
+    os.tcsetpgrp(0, puppet_pid)
+    if puppet_pid != 0:
+        # Name ourselves as successors to the puppet
+        os.setpgid(parent_pid, puppet_pid)
+
+        # Regicide
+        os.kill(puppet_pid, 9)  # SIGKILL
+
+        # Coup d'etat complete
+        os.execvp(sys.argv[1], sys.argv)
+    </code></pre>
+    <p>The idea is that we currently share control of the terminal with other
+    processes in our process group, but we want sole control, hence the coup
+    d'etat:</p>
+    <ol>
+    <li>We fork to create a child process</li>
+    <li>We call setpgid/tcsetpgrp to install the child as a puppet terminal ruler, in a process group by itself.</li>
+    <li>We call setpgid to join that same process group, naming ourselves as successors to the puppet.</li>
+    <li>We call kill to commit regicide on the puppet, at which point we're in sole control. Coup d'etat complete!</li>
+    </ol>
+    <p>And it works! Kind of. Until you press CTRL-Z. Then things hang - even if you
+    press CTRL-C. The problem is that CTRL-Z stops your process. Normally, this
+    would propagate out to the shell, which would handle this gracefully, allowing
+    you to resume with <code>fg</code>. But our coup d'etat means that the shell doesn't even
+    see it.</p>
+    <p>So I guess it's not actually that helpful to pull off a coup d'etat like this.
+    It's nice to have parent process in a different process group around to monitor
+    your child process, so you might as well do something like this:</p>
+    <pre><code># Incomplete code - doesn't handle job control
+
+    import os
+    import sys
+
+    parent_pid = os.getpid()
+    assert os.isatty(0), "This only works if stdin is a tty"
+    assert os.tcgetpgrp(0) == os.getpgid(parent_pid), "This only works if we're currently in control"
+
+    # Fork so we can make our child the owner of the terminal in a unique process
+    # group, then put ourselves in the same process group and kill the child.
+    pid = os.fork()
+    child_pid = pid or os.getpid()
+
+    # To avoid a race condition, we setpgid/tcsetpgrp from both the parent and the
+    # child. The child will block until the parent call completes, then it will
+    # either be killed, or exit itself.
+
+    os.setpgid(child_pid, child_pid)
+    os.tcsetpgrp(0, child_pid)
+    if child_pid == 0:
+        os.execvp(sys.argv[1], sys.argv)
+    else:
+        # ...
+    </code></pre>
+    <p>But it's actually rather complex to monitor a child process correctly, and
+    there is already software that does it right - the shell. It's better to use
+    that, which is what my <a href="https://mulcahy.ca/posts/invoking-scripts-that-handle-ctrl-c-from-kotlin-java.html">previous
+    post</a>
+    describes.</p>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted January 23, 2025.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+    <a href="https://mulcahy.ca/tags/shell.html">#shell</a>
+    </p>
+    <div class="navbar">
+    <a href="https://mulcahy.ca/">Index</a>
+    <a href="https://mulcahy.ca/rss.xml">RSS</a>
+    <a href="https://mulcahy.ca/about.html">About</a>
+    </div>
+    ]]></content:encoded>
     </item>
     <item>
        <title>Invoking scripts that handle CTRL-C from Kotlin/Java</title>
        <link>https://mulcahy.ca/posts/invoking-scripts-that-handle-ctrl-c-from-kotlin-java.html</link>
        <description>Invoking scripts that handle CTRL-C from Kotlin/Java</description>
-       <pubDate>2025-01-23 17:48:13</pubDate>
-       <guid isPermaLink="true">posts/invoking-scripts-that-handle-ctrl-c-from-kotlin-java.html</guid>
+       <pubDate>Thu, 23 Jan 2025 17:48:13 -0800</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/invoking-scripts-that-handle-ctrl-c-from-kotlin-java.html</guid>
+       <content:encoded><![CDATA[
+    <h1>Invoking scripts that handle CTRL-C from Kotlin/Java</h1>
+    <p><i>Invoking scripts that handle CTRL-C from Kotlin/Java</i></p>
+    <p>Android has scripts for collecting profiles (<code>record_android_trace</code> for
+    <a href="https://perfetto.dev/docs/quickstart/android-tracing">perfetto</a> and
+    <code>app_profiler.py</code> for
+    <a href="https://android.googlesource.com/platform/system/extras/+/master/simpleperf/doc/README.md">simpleperf</a>)
+    that collect profiling information until CTRL-C is pressed. After CTRL-C they
+    will flush the profiling data and pull it from the device.</p>
+    <p>If you try to invoke these scripts from inside a Kotlin script (or any
+    Kotlin/Java program in general) then the inner script will run inside the
+    same process group as the Kotlin script, which means that any signal (such as
+    the SIGINT that is generated in response to CTRL-C) will be received by both
+    processes simultaneously. The Kotlin script will exit almost immediately,
+    before the inner script has finished flushing/pulling.</p>
+    <p>How do you fix it?</p>
+    <pre><code class="language-kotlin">val executable = "app_profiler.py"
+    val args = listOf&lt;String&gt;()
+    val process = ProcessBuilder("sh", "-i", "-c", "\"$0\" \"$@\"", executable, *args.toTypedArray())
+        .inheritIO()  // Ensures stdout/stderr go to the console
+        .start()
+        .waitFor()
+    </code></pre>
+    <p>We run our inner script via the shell. <code>-i</code> forces the shell to run
+    interactively, even though we are passing a command with <code>-c</code>. In interactive
+    mode the shell handles job control - it runs its child in a separate process
+    group, as the terminal owner. This means the child receives signals, not the
+    parent (And the shell handles some other signals too - it's actually somewhat
+    involved to handle job control correctly)</p>
+    <p>The <code>"$0" "$@"</code> stuff is just a small trick to avoid string splitting issues.
+    If you know your arguments exactly and they don't contain any spaces you can
+    provide your command to <code>sh</code> as a single string.</p>
+    <p>I discovered this solution as I was researching processes/groups/signals/etc
+    and trying to manually call the right syscalls. Eventually I realized I was
+    basically building my own shell, so I looked into how I could use the shell to
+    do it for me. It's amazing how much easier it is when you use the right tool
+    for the job!</p>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted January 23, 2025.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+    <a href="https://mulcahy.ca/tags/android.html">#android</a>, <a href="https://mulcahy.ca/tags/shell.html">#shell</a>
+    </p>
+    <div class="navbar">
+    <a href="https://mulcahy.ca/">Index</a>
+    <a href="https://mulcahy.ca/rss.xml">RSS</a>
+    <a href="https://mulcahy.ca/about.html">About</a>
+    </div>
+    ]]></content:encoded>
     </item>
     <item>
        <title>https-enabled subdomain forwarding, with Github Pages</title>
        <link>https://mulcahy.ca/posts/https-enabled-subdomain-forwarding-with-github-pages.html</link>
        <description>How to use Github Pages to forward subdomain traffic</description>
-       <pubDate>2025-01-05 07:54:02</pubDate>
-       <guid isPermaLink="true">posts/https-enabled-subdomain-forwarding-with-github-pages.html</guid>
+       <pubDate>Sun, 05 Jan 2025 07:54:02 -0800</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/https-enabled-subdomain-forwarding-with-github-pages.html</guid>
+       <content:encoded><![CDATA[
+    <h1>https-enabled subdomain forwarding, with Github Pages</h1>
+    <p><i>How to use Github Pages to forward subdomain traffic</i></p>
+    <p>I've hosted my blog at Github Pages for over a year, but I didn't realize I
+    could also use Github Pages for subdomains. I thought I'd have to manually
+    setup Let's Encrypt, so I'd been holding off. However, it turns out GitHub
+    Pages makes this really easy—no manual certificate management required!</p>
+    <p>Here’s how I set up an HTTPS redirect for one of my subdomains in just a few
+    minutes:</p>
+    <h2 id="step-1-add-a-cname-entry-for-the-subdomain">Step 1 - Add a CNAME entry for the subdomain</h2>
+    <p>Via my registrar, I added a CNAME entry for my subdomain pointing to my Github
+    Pages URL (<code>USERNAME.github.io</code>). If you’re already hosting your main site on
+    GitHub Pages, don’t worry—it’s fine to have multiple CNAME entries for
+    different subdomains all pointing to the same URL.</p>
+    <h2 id="step-2-create-a-subdomain-redirect-github-project">Step 2 - Create a subdomain-redirect Github project</h2>
+    <p>I created a separate GitHub repository (public, to use the free tier) with a simple index.html file in the root directory to handle the redirect.</p>
+    <p>Here’s the content of my index.html:</p>
+    <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv="refresh" content="0; url=https://example.com"&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;p&gt;Redirecting to &lt;a href="https://example.com"&gt;https://example.com&lt;/a&gt;.&lt;/p&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;
+    </code></pre>
+    <h2 id="step-3-configure-the-github-project-to-use-the-subdomain">Step 3 - Configure the Github project to use the subdomain</h2>
+    <p>Under <strong>Settings</strong> -&gt; <strong>Pages</strong>, I selected the main branch as the source for the Pages
+    site. Then, under <strong>Custom Domain</strong>, I specified my subdomain (e.g.
+    <code>sub.example.com</code>).  After saving, GitHub automatically provisioned an SSL
+    certificate using <a href="https://letsencrypt.org/">Let’s Encrypt</a>.</p>
+    <p>Within a minute, my HTTPS redirect was up and running.</p>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted January 05, 2025.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+    <a href="https://mulcahy.ca/tags/web.html">#web</a>
+    </p>
+    <div class="navbar">
+    <a href="https://mulcahy.ca/">Index</a>
+    <a href="https://mulcahy.ca/rss.xml">RSS</a>
+    <a href="https://mulcahy.ca/about.html">About</a>
+    </div>
+    ]]></content:encoded>
     </item>
     <item>
        <title>A Linux groups gotcha</title>
        <link>https://mulcahy.ca/posts/a-linux-groups-gotcha.html</link>
        <description>You have to log out and log back in after adding yourself to a group</description>
-       <pubDate>2024-12-27 16:47:05</pubDate>
-       <guid isPermaLink="true">posts/a-linux-groups-gotcha.html</guid>
+       <pubDate>Fri, 27 Dec 2024 16:47:05 -0800</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/a-linux-groups-gotcha.html</guid>
+       <content:encoded><![CDATA[
+    <h1>A Linux groups gotcha</h1>
+    <p><i>You have to log out and log back in after adding yourself to a group</i></p>
+    <p>Suppose you add yourself to a group with:</p>
+    <pre><code class="language-shell">sudo usermod -aG examplegroup $USER
+    </code></pre>
+    <p>You might expect that you can immediately view all files with the new
+    permissions afforded to you by your membership in <code>examplegroup</code>. Alas, no. 
+    Your group memberships are cached in your session. To see what groups you are
+    effectively a part of (for the current session) with:</p>
+    <pre><code class="language-shell">id
+    </code></pre>
+    <p>To see what groups you're in globally (as stored in /etc/group), use:</p>
+    <pre><code class="language-shell">groups $USER
+    </code></pre>
+    <p>You can "remove" yourself from a group with:</p>
+    <pre><code class="language-shell">sudo gpasswd --delete $USER examplegroup
+    </code></pre>
+    <p>but you'll still have permissions associated with examplegroup (due to the session cache).</p>
+    <p>The easiest way to update your effective groups is to log out and log back in.
+    If you want to make sure there aren't any processes around with the stale
+    groups info, you can kill them all:</p>
+    <pre><code class="language-shell">sudo pkill -u $USER
+    </code></pre>
+    <p>If you just added yourself to a new group, you can update your membership in that group with:</p>
+    <pre><code class="language-shell">newgrp examplegroup
+    </code></pre>
+    <p>However, it has side-effects. It starts a new shell, and changes the current real
+    group ID to the specified group, meaning any files you create will be
+    associated with that group. So I think it's better to log out and log back in.</p>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted December 27, 2024.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+    <a href="https://mulcahy.ca/tags/linux.html">#linux</a>
+    </p>
+    <div class="navbar">
+    <a href="https://mulcahy.ca/">Index</a>
+    <a href="https://mulcahy.ca/rss.xml">RSS</a>
+    <a href="https://mulcahy.ca/about.html">About</a>
+    </div>
+    ]]></content:encoded>
     </item>
     <item>
        <title>Frustrations with Google Takeout</title>
        <link>https://mulcahy.ca/posts/frustrations-with-google-takeout.html</link>
        <description>Problems I experienced with Google Takeout and how I worked around them</description>
-       <pubDate>2024-12-27 06:08:28</pubDate>
-       <guid isPermaLink="true">posts/frustrations-with-google-takeout.html</guid>
+       <pubDate>Fri, 27 Dec 2024 06:08:28 -0800</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/frustrations-with-google-takeout.html</guid>
+       <content:encoded><![CDATA[
+    <h1>Frustrations with Google Takeout</h1>
+    <p><i>Problems I experienced with Google Takeout and how I worked around them</i></p>
+    <p>When I purchased the mulcahy.ca domain name I thought it would be a good idea
+    to use Google Apps For Your Domain. Basically I got something that looked like
+    a normal Google account - gmail, etc - but my login was <em>[redacted]</em>@mulcahy.ca
+    instead of <em>[redacted]</em>@gmail.com. There were some frustrations over the years,
+    but I was able to live with them. My takeaway from the experience is that it's
+    better to use the mass market product than a niche product. If you want things
+    to just work choose Toyota over Ferrari.</p>
+    <p>Google Apps For Your Domain went through multiple renames and each rename
+    seemed to come with a price increase. I found some details
+    <a href="https://www.lexnetcg.com/blog/google-workspace/brief-history/">here</a>. I don't
+    believe I had ever used the free product - maybe I was initially paying
+    $50/year. Now the product is called Google Workspace and I'm paying $40 - per
+    month! The cost has increased by nearly 10x. It seems to be aimed at small
+    business owners rather than hobbyists.</p>
+    <p>I host my blog for free on Github Pages and my domain registrar provides email
+    forwarding for $5/year, so I've wanted to leave Google Workspace and save some
+    money for a long time. In theory, it should be easy. Google Takeout advertises
+    the ability to download all of your data. In practice, not so much.</p>
+    <h2 id="takeout-problem-1-incomplete-data">Takeout Problem #1: Incomplete data</h2>
+    <p>The data I downloaded from takeout was incomplete. <a href="https://www.reddit.com/r/googlephotos/comments/1cx0tds/please_dont_use_google_photos_and_google_takeout/">Apparently I'm not the only
+    one</a>.
+    I downloaded folders from Google Drive and some files in subfolders were
+    missing. This is a big problem for me because I have important records I can't
+    lose. I'm fortunate that I noticed a problem before deleting the original data.</p>
+    <h2 id="takeout-problem-2-missing-metadata">Takeout Problem #2: Missing metadata</h2>
+    <p>When I used takeout to download photos from Google Photos the timestamps were
+    missing. This was a big problem for me because my photos of my children as
+    babies were in my Google Workspace account. I really wanted to know when each
+    photo was taken.</p>
+    <h2 id="takeout-problem-3-file-conversion">Takeout Problem #3: File conversion</h2>
+    <p>I had lots of gdocs and Takeout automatically converted them to docx. Some of
+    the file/folder names got changed slightly. This is not as much of a
+    deal-breaker as the first two, but it still makes me unhappy. I wanted to
+    re-upload the takeout files into my personal Gmail account, so they should be
+    able to remain as gdocs. Although this whole debacle makes me question whether
+    I should be using gdocs. I will defer that to a later time.</p>
+    <h2 id="google-photos-solution">Google Photos Solution</h2>
+    <p>I used "Partner Sharing" to share all of my photos with my personal Gmail
+    account, and then in that personal account I chose to save all photos to my
+    account. This worked quite well and really wasn't too hard. The only thing I
+    didn't like is that it didn't tell me when sharing was complete, so I don't
+    really know when it's safe to delete the originals, but probably it's okay a
+    day later? Make sure you choose the option to save the shared photos to your
+    account.</p>
+    <h2 id="google-drive-solution">Google Drive Solution</h2>
+    <p>I couldn't find an easy solution for Google Drive. There is a setting to
+    transfer ownership but it doesn't allow you to transfer outside of your
+    "organization". You can share folders with people outside of your organization,
+    but you can't transfer ownership.</p>
+    <p>I also tried syncing data with Google Drive for Desktop and then manually
+    copying. This lost the gdrive-native files, like gdoc. The problem is that
+    these are synced as pointers to the original files, which are owned by my
+    workspace account.</p>
+    <p>I moved all of my content into a folder named to-share and shared that with my
+    personal account. Then I had ChatGPT write me some Python to copy that folder
+    recursively. I had to generate a credentials.json file which was annoying and
+    I'd rather not have done with my personal account. But I'll delete the
+    credentials after the operation is complete.</p>
+    <p>ChatGPT's code kind of worked, but I had to tweak it to preserve file name and
+    metadata. And then I noticed that it was only copying the first 100 files in
+    large folders, so I had to change it to handle pagination. It's worthwhile
+    double-checking the results. Here's the code in case it helps someone else.</p>
+    <p>I find it absurd how difficult this is, but I think it's unlikely there was any
+    ill intent. Google probably made the decision to not allow ownership transfer
+    outside of the organization because it'd be rather catastrophic if you
+    transferred ownership accidentally.</p>
+    <pre><code class="language-python">import os
+    import io
+    import google.auth
+    from google.auth.transport.requests import Request
+    from google.oauth2.credentials import Credentials
+    from google_auth_oauthlib.flow import InstalledAppFlow
+    from googleapiclient.discovery import build
+    from googleapiclient.http import MediaIoBaseDownload
+
+    # If modifying or deleting the scope later, delete the token.json file to revoke the old one
+    SCOPES = ['https://www.googleapis.com/auth/drive']
+
+    # Authenticate and create the service
+    def authenticate():
+        """Authenticate and return the service."""
+        creds = None
+        # The file token.json stores the user's access and refresh tokens, and is created automatically when the authorization flow completes for the first time.
+        if os.path.exists('token.json'):
+            creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+        # If there are no (valid) credentials available, let the user log in.
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    'credentials.json', SCOPES)
+                creds = flow.run_local_server(port=8080)
+            # Save the credentials for the next run
+            with open('token.json', 'w') as token:
+                token.write(creds.to_json())
+
+        service = build('drive', 'v3', credentials=creds)
+        return service
+
+    def get_folder_contents(service, folder_id):
+        """Get all files and subfolders in a folder, handling pagination."""
+        items = []
+        page_token = None
+
+        while True:
+            # List the files in the folder, handling pagination with page_token
+            results = service.files().list(
+                q=f"'{folder_id}' in parents",
+                fields="nextPageToken, files(id, name, mimeType)",
+                pageToken=page_token
+            ).execute()
+
+            # Add the files from this page to the list of items
+            items.extend(results.get('files', []))
+
+            # Check if there is another page of results
+            page_token = results.get('nextPageToken')
+            if not page_token:
+                break  # No more pages, exit the loop
+
+        print(f"returning {len(items)} items")
+
+        return items
+
+    def copy_file(service, file_id, folder_id):
+        """Copy a file to the new folder, preserving the original file name."""
+        # Get the file's metadata to preserve its original name
+        file = service.files().get(fileId=file_id, fields='name').execute()
+        file_name = file['name']
+
+        # Prepare the metadata for the copy operation
+        file_metadata = {'name': file_name, 'parents': [folder_id]}
+
+        # Copy the file to the new folder
+        copied_file = service.files().copy(fileId=file_id, body=file_metadata).execute()
+        print(f"Copied file: {copied_file['name']} - original_id={file_id}, new_id={copied_file['id']}, mimeType={copied_file['mimeType']}")
+        print(f"{copied_file=}")
+
+        return copied_file['id']
+
+    # After copying the file, restore timestamps
+    def restore_timestamps(service, copied_file_id, original_file_id):
+        original_file = service.files().get(fileId=original_file_id, fields='createdTime, modifiedTime').execute()
+        created_time = original_file['createdTime']
+        modified_time = original_file['modifiedTime']
+
+        # Update the copied file's timestamps (Google Drive doesn't allow setting createdTime directly, but we can update modifiedTime)
+        updated_file_metadata = {'modifiedTime': modified_time}
+        service.files().update(fileId=copied_file_id, body=updated_file_metadata).execute()
+
+        print(f"Restored timestamps for copied file {copied_file_id}")
+
+    # Copy a folder
+    def copy_folder(service, source_folder_id, destination_folder_id):
+        """Recursively copy a folder and its contents."""
+        # First, copy all files in the folder
+        items = get_folder_contents(service, source_folder_id)
+
+        for item in items:
+            if item['mimeType'] == 'application/vnd.google-apps.folder':  # If it's a folder
+                # Create the folder in the destination
+                folder_metadata = {'name': item['name'], 'mimeType': 'application/vnd.google-apps.folder', 'parents': [destination_folder_id]}
+                new_folder = service.files().create(body=folder_metadata, fields='id, name').execute()
+                print(f"Created folder: {new_folder['name']}")
+                restore_timestamps(service, copied_file_id=new_folder['id'], original_file_id=item['id'])
+                # Recursively copy the contents of this folder
+                copy_folder(service, item['id'], new_folder['id'])
+            else:
+                # Copy the file to the destination folder
+                copied_file_id = copy_file(service, item['id'], destination_folder_id)
+                restore_timestamps(service, copied_file_id=copied_file_id, original_file_id=item['id'])
+
+    # Main function to copy folder
+    def copy_drive_folder(source_folder_id, destination_folder_id):
+        service = authenticate()
+        copy_folder(service, source_folder_id, destination_folder_id)
+
+    if __name__ == '__main__':
+        source_folder_id = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'  # Replace with your source folder ID
+        destination_folder_id = 'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY'  # Replace with your destination folder ID
+        copy_drive_folder(source_folder_id, destination_folder_id)
+    </code></pre>
+    <p>You'll also need to pip install dependencies:</p>
+    <pre><code>pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+    </code></pre>
+    <h2 id="gmail-solution">Gmail Solution</h2>
+    <p>I didn't really have much of a problem here because I've been forwarding my
+    email from my Google Workspace account to my personal account for years. I've
+    also set up <a href="https://en.wikipedia.org/wiki/OfflineIMAP">OfflineIMAP</a> so I can
+    keep local copies of my emails.</p>
+    <h2 id="solutions-for-other-google-services">Solutions for other Google services</h2>
+    <p>I don't think I really have anything else there, but I used Google Takeout to
+    download everything else just in case.</p>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted December 27, 2024.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+    <a href="https://mulcahy.ca/tags/python.html">#python</a>
+    </p>
+    <div class="navbar">
+    <a href="https://mulcahy.ca/">Index</a>
+    <a href="https://mulcahy.ca/rss.xml">RSS</a>
+    <a href="https://mulcahy.ca/about.html">About</a>
+    </div>
+    ]]></content:encoded>
     </item>
     <item>
        <title>CLIs with updating statuses</title>
        <link>https://mulcahy.ca/posts/clis-with-updating-statuses.html</link>
        <description>Different methods for updating statuses inside a CLI</description>
-       <pubDate>2024-12-22 17:54:36</pubDate>
-       <guid isPermaLink="true">posts/clis-with-updating-statuses.html</guid>
+       <pubDate>Sun, 22 Dec 2024 17:54:36 -0800</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/clis-with-updating-statuses.html</guid>
+       <content:encoded><![CDATA[
+    <h1>CLIs with updating statuses</h1>
+    <p><i>Different methods for updating statuses inside a CLI</i></p>
+    <p>I still often prefer Command-Line Interfaces (CLIs) over GUIs. I will
+    distinguish between a CLI and a Textual User Interface (TUI). A true CLI takes
+    all of its input as command-line arguments and possibly <code>stdin</code>. But if it does
+    read from <code>stdin</code>, that input should be interpreted as a single block, rather
+    than as responses to <code>stdout</code>/<code>stderr</code>. CLIs are stateless, as opposed to TUIs
+    and GUIs that interpret input depending on their state at the time input is
+    received. You can copy/paste a command-line and get (mostly) the same behavior,
+    without having to memorize which elements of the GUI to click on.</p>
+    <p>Traditionally, diagnostic information, like progress updates, are written to
+    <code>stderr</code>. Actual results are written to <code>stdout</code>. The diagnostics of the
+    simplest CLIs consist of purely visible characters, which present a tradeoff:
+    With what frequency should progress updates be written? Infrequent updates
+    force the user to wait. Frequent updates create a wall of unimportant messages
+    that potentially obscure more important warnings and errors.</p>
+    <p>I prefer CLIs that continuously update their status. The way to implement such
+    updates is rather interesting.  Proper TUIs accomplish status updates by
+    maintaining a buffer and synchronizing the terminal display to this buffer, but
+    doing so conflicts with the terminal's scrollback. You can't have status
+    updates in the right place as the user is scrolling back. Terminal APIs allow
+    you to write to particular locations on screen, but you can't read what was
+    previously in those locations. You can't detect scrolling. You can't write to
+    particular locations within the scrollback buffer.</p>
+    <p>The mechanism for CLIs with updating statuses dates back at least 150 years to
+    the first commercially successful typewriter - the <a href="https://en.wikipedia.org/wiki/Sholes_and_Glidden_typewriter">Sholes and Glidden
+    typewriter</a> -
+    which used a <a href="https://en.wikipedia.org/wiki/Carriage_return">carriage return</a>
+    lever to move the carriage back to the left side of the paper after typing a
+    line of text. Moving to the left without moving down was used to write text
+    on-top of existing text, allowing for special effects like strikethrough,
+    underline, or bold. When carriage return was adapted to teletype machines it
+    replaced existing characters rather than writing on-top of them, and this
+    behavior carries forward to TTY terminals (and emulators) today.</p>
+    <p>This carriage-return replacement forms the basis for CLIs to provide updating
+    statuses, but these days it's slightly easier with ANSI escape codes. With
+    carriage-returns you need to print spaces to erase each previously printed
+    character. If you don't know how many characters were previously printed you
+    can query the terminal size with the ioctl TIOCGWINSZ, take the width, and then
+    print that many spaces. With ANSI escape codes you can just print "\033[2K" to
+    clear the entire line. To clear multiple lines you can repeatedly move the
+    cursor up with "\033[F" and then clear each line.</p>
+    <p>A common problem when implementing updating statuses is you don't know if
+    something else has written to the terminal since you last updated the status.
+    If you blindly attempt to erase the last status you may instead erase an
+    important error/warning written to the console. It'd be quite convenient if you
+    could query the characters in the terminal, but unfortunately this isn't
+    possible (as far as I can tell). TUI-style libraries, such as curses, emulate this
+    by maintaining a buffer of the desired terminal contents and repeatedly
+    synchronizing it to the actual terminal.</p>
+    <p>I reason that the inability to query a character at a particular position is
+    the textual equivalent of the GPU readback problem. In the graphics world,
+    attempting to read a pixel output from the GPU requires waiting for the GPU
+    pipeline to flush, which introduces high latency. In the text world, your terminal
+    might be on a different computer, so reading a character at a particular
+    position would require a network roundtrip.</p>
+    <p>It's quite interesting that you can successfully read the terminal size. This
+    doesn't require a network roundtrip because whenever the size of the terminal
+    changes the ssh client detects the change via SIGWINCH and then forwards it to
+    the sshd server which communicates it to the kernel with TIOCSWINSZ. This
+    works, but imperfectly. You may write characters to the terminal before you
+    find out that the terminal size has just changed. Usually this lack of true
+    synchronization creates some minor artifacts - maybe the status is displayed
+    incorrectly until the server receives the window size update and issues a new
+    status update.</p>
+    <p>Could similar tricks be played to keep the server informed about the contents
+    of the entire scrollback buffer? It'd be far more complex - maybe to the point
+    of being impractical. The sshd server would need to understand <em>exactly</em> how
+    the terminal interpreted each escape code.</p>
+    <p>In the absence of readback, how can you ensure that nothing else writes to the
+    terminal in between status updates? In some sense, this is truly impossible.
+    Your program may have been invoked from within another program that is also
+    writing to the terminal simultaneously. But this is arguably a bug in the
+    calling program, so we'll set this aside.</p>
+    <p>In small scripts you can carefully avoid writing to the terminal. In larger
+    scripts you can redirect output to prevent accidentally writing to the
+    terminal. With a language like Python you can temporarily set
+    <code>sys.stdout</code>/<code>sys.stderr</code> to different objects satisfying the TextIO interface.
+    This will catch most accidental writes, but it's still possible to write to
+    <code>stdout</code>/<code>stderr</code> directly with file descriptors 1/2. A more complete
+    redirection is possible at the file descriptor level with <code>dup2</code>. File
+    descriptors are handles, so they operate much like pointers. Conceptually
+    <code>dup2</code> allows you to "dereference" the file descriptor and "point" it somewhere
+    else.</p>
+    <p>These mechanisms mostly work, but expose edge cases and require careful coding
+    to avoid nasty bugs. If you have some code that expects <code>stderr</code> to be connected
+    to a TTY it may cause issues when you temporarily redirect <code>stderr</code>.  And if
+    you don't properly restore <code>stderr</code> you won't be able to see the traceback
+    normally printed when your program crashes. This is a nasty bug because you may
+    not even realize there is a problem. </p>
+    <p>I think the best solution is to consolidate status updates to a tiny process
+    that parses output from other processes. If those other processes wish to issue
+    status updates, they can use a special line prefix. This approach means other
+    processes see <code>stdout</code>/<code>stderr</code> as being disconnected from a terminal, but I'd
+    argue this is preferable since the root issue stems from multiple programs
+    attempting to interact with a terminal simultaneously.</p>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted December 22, 2024.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+    <a href="https://mulcahy.ca/tags/cli.html">#cli</a>
+    </p>
+    <div class="navbar">
+    <a href="https://mulcahy.ca/">Index</a>
+    <a href="https://mulcahy.ca/rss.xml">RSS</a>
+    <a href="https://mulcahy.ca/about.html">About</a>
+    </div>
+    ]]></content:encoded>
     </item>
     <item>
        <title>Configuring computer names within a LAN</title>
        <link>https://mulcahy.ca/posts/configuring-computer-names-within-a-lan.html</link>
        <description>How to publish a computer name to Multicast DNS</description>
-       <pubDate>2023-12-29 11:29:34</pubDate>
-       <guid isPermaLink="true">posts/configuring-computer-names-within-a-lan.html</guid>
+       <pubDate>Fri, 29 Dec 2023 11:29:34 -0800</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/configuring-computer-names-within-a-lan.html</guid>
+       <content:encoded><![CDATA[
+    <h1>Configuring computer names within a LAN</h1>
+    <p><i>How to publish a computer name to Multicast DNS</i></p>
+    <p>I recently bought a Raspberry Pi and I wanted to be able to SSH into it. The
+    problem is - what's its IP address?</p>
+    <h2 id="solution-1-ifconfig">Solution 1 - ifconfig</h2>
+    <p>If I have a monitor/keyboard attached to the Pi, then I can run <code>ifconfig</code> and it produces output like:</p>
+    <pre><code>wlan0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+            inet 192.168.7.207  netmask 255.255.252.0  broadcast 192.168.7.255
+            inet6 fe80::da3a:ddff:fe45:863f  prefixlen 64  scopeid 0x20&lt;link&gt;
+            ether d8:3a:dd:45:86:3f  txqueuelen 1000  (Ethernet)
+            RX packets 78677  bytes 46740811 (44.5 MiB)
+            RX errors 0  dropped 0  overruns 0  frame 0
+            TX packets 10826  bytes 1248499 (1.1 MiB)
+            TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+    </code></pre>
+    <p>That means I can SSH into <code>192.168.7.207</code>. This works, but it has a huge
+    drawback: the IP address can change, so I need to attach a monitor/keyboard.
+    This kind of obviates the need for SSH. It also produces SSH warning messages
+    each time the IP address changes.</p>
+    <h2 id="solution-2-pinning-the-ip-address-in-my-router">Solution 2 - pinning the IP address in my router</h2>
+    <p>I use a EERO router, which has software which allows me to pin specific devices
+    to specific IP addresses. So I can pin my PI to <code>192.168.7.207</code>. I don't like
+    to remember a sequence of numbers, so I add an entry to my <code>/etc/hosts</code>:</p>
+    <pre><code>192.168.7.207 raspberry-pi
+    </code></pre>
+    <p>Now I can disconnect my monitor/keyboard and <code>ssh raspberry-pi</code>. But there are still some drawbacks:</p>
+    <ol>
+    <li>
+    <p>I need to configure the pinned IP address in some proprietary router
+       software. If I change my router, I'll need to redo this work.</p>
+    </li>
+    <li>
+    <p>I need to configure <code>/etc/hosts</code> on any device I use to ssh to
+       <code>raspberry-pi</code>. If I ever need to change these addresses, it'll be a pain to
+       track them all down.</p>
+    </li>
+    </ol>
+    <h2 id="solution-3-multicast-dns">Solution 3 - multicast DNS</h2>
+    <p>This is my current solution, and I'm quite happy with it. I can configure my
+    raspberry-pi to publish its name via <a href="https://en.wikipedia.org/wiki/Multicast_DNS">Multicast
+    DNS</a> (aka mDNS). The software to do this for
+    Linux is <a href="https://avahi.org/">Avahi</a>. On NixOS this can be setup as follows:</p>
+    <pre><code>{
+      networking.hostName = "raspberry-pi";
+
+      # Enable LAN hostname resolution (so other machines on the same LAN can find
+      # this one)
+      services.avahi = {
+          enable = true;
+          nssmdns = true;
+          publish = {
+            enable = true;
+            addresses = true;
+            domain = true;
+            hinfo = true;
+            userServices = true;
+            workstation = true;
+          };
+      };
+    }
+    </code></pre>
+    <p>With mDNS I can ssh into my Pi with <code>ssh raspberry-pi.local</code>. Any machine on
+    the same LAN can resolve this address. I don't need any external configuration.</p>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted December 29, 2023.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+    <a href="https://mulcahy.ca/tags/linux.html">#linux</a>
+    </p>
+    <div class="navbar">
+    <a href="https://mulcahy.ca/">Index</a>
+    <a href="https://mulcahy.ca/rss.xml">RSS</a>
+    <a href="https://mulcahy.ca/about.html">About</a>
+    </div>
+    ]]></content:encoded>
     </item>
     <item>
        <title>Avoiding shell double-evaluation</title>
        <link>https://mulcahy.ca/posts/avoiding-shell-double-evaluation.html</link>
        <description>How to avoid double-evaluating commands in ssh / adb shell / etc.</description>
-       <pubDate>2023-11-22 12:44:21</pubDate>
-       <guid isPermaLink="true">posts/avoiding-shell-double-evaluation.html</guid>
+       <pubDate>Wed, 22 Nov 2023 12:44:21 -0800</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/avoiding-shell-double-evaluation.html</guid>
+       <content:encoded><![CDATA[
+    <h1>Avoiding shell double-evaluation</h1>
+    <p><i>How to avoid double-evaluating commands in ssh / adb shell / etc.</i></p>
+    <p>I like to use the following <code>echo-args.sh</code> script to debug shell
+    double-evaluation problems:</p>
+    <pre><code class="language-shell">#!/bin/sh
+
+    for arg; do
+        echo \""$arg"\"
+    done
+    </code></pre>
+    <p>You can then push this to an android device:</p>
+    <pre><code class="language-shell">$ chmod u+x echo-args.sh
+    $ adb push /data/local/tmp/
+    </code></pre>
+    <p>And run it like so:</p>
+    <pre><code class="language-shell">$ ./echo-args.sh 'hello world'
+    "hello world"
+    $ adb shell /data/local/tmp/echo-args.sh 'hello world'
+    "hello"
+    "world"
+    </code></pre>
+    <p>And here lies the problem. When we run a command with <code>adb shell</code> (or <code>ssh</code>) it
+    gets double-evaluated - once by our current shell, and once by the shell on the
+    device. Sometimes this might be what you want. e.g. You might want to evaluated
+    an environment variable in the context of the remote shell.</p>
+    <p>But it's really annoying when it's not what you want. I've written a
+    scripts that invoke <code>adb shell</code> internally and <em>mostly</em> work, except when I
+    pass arguments with spaces.</p>
+    <p>I <em>think</em> I've figured out a robust workaround:</p>
+    <pre><code class="language-shell">run-escaped() {
+      shell=$1
+      shift
+
+      $shell "$(printf " %q" "$@")"
+    }
+    </code></pre>
+    <p>Usage:</p>
+    <pre><code class="language-shell">$ run-escaped 'adb shell' /data/local/tmp/echo-args.sh 'hello world'
+    "hello world"
+    </code></pre>
+    <p>It also works with <code>ssh</code>:</p>
+    <pre><code class="language-shell">$ run-escaped 'ssh remotebox' echo-args.sh 'hello world'
+    "hello world"
+    </code></pre>
+    <p>This works by first escaping all of the arguments, after they've been
+    evaluated once by the local shell. Then it passes this as a string to the
+    remote shell.</p>
+    <p>The double-evaluation still happens, but since we escaped our parameters, it's
+    as if it didn't happen.</p>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted November 22, 2023.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+    <a href="https://mulcahy.ca/tags/shell.html">#shell</a>
+    </p>
+    <div class="navbar">
+    <a href="https://mulcahy.ca/">Index</a>
+    <a href="https://mulcahy.ca/rss.xml">RSS</a>
+    <a href="https://mulcahy.ca/about.html">About</a>
+    </div>
+    ]]></content:encoded>
     </item>
     <item>
        <title>Better multiline string templates</title>
        <link>https://mulcahy.ca/posts/better-multiline-string-templates.html</link>
        <description>Subtle problems with templates in multiline strings and some ways to fix them</description>
-       <pubDate>2023-11-21 17:12:31</pubDate>
-       <guid isPermaLink="true">posts/better-multiline-string-templates.html</guid>
+       <pubDate>Tue, 21 Nov 2023 17:12:31 -0800</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/better-multiline-string-templates.html</guid>
+       <content:encoded><![CDATA[
+    <h1>Better multiline string templates</h1>
+    <p><i>Subtle problems with templates in multiline strings and some ways to fix them</i></p>
+    <p>These days many languages support multiline string templates. Here's what they
+    look like in Kotlin:</p>
+    <pre><code class="language-kotlin">val example = """
+            This
+            is a
+            multiline
+            string.
+        """
+    </code></pre>
+    <p>But that will create a multiline with a bunch of spaces at the beginning of each line:</p>
+    <pre><code>        This
+            is a
+            multiline
+            string.
+    </code></pre>
+    <p>So I like to use <code>trimIndent</code> to remove these spaces.</p>
+    <pre><code class="language-kotlin">val example = """
+            This
+            is a
+            multiline
+            string.
+        """.trimIndent()
+    </code></pre>
+    <p>This works the way I expect:</p>
+    <pre><code>This
+    is a
+    multiline
+    string.
+    </code></pre>
+    <p>But problems happen when I combine string templating with trimIndent:</p>
+    <pre><code>val center = """
+            is a
+            multiline
+        """.trimIndent()
+
+    val example = """
+            This
+            $center
+            string.
+        """.trimIndent()
+    </code></pre>
+    <p><code>$center</code> gets expanded to a string consisting of two lines with no
+    indentation. The first line is indented because <code>$center</code> itself is indented.
+    But the second line is not indented.</p>
+    <pre><code>        This
+            is a
+    multiline
+            string.
+    </code></pre>
+    <p>If you want a workaround that works in kotlin, try this:</p>
+    <pre><code>val center = """
+           |is a
+           |multiline
+        """.trimMargin()
+
+    val example = """
+           |This
+           |${center.replace("\n", "\n|")}
+           |string.
+        """.trimMargin()
+    </code></pre>
+    <p>I think the margin character is a little ugly, and the requirement of embedding
+    with <code>${center.replace("\n", "\n|")}</code> is quite ugly. Maybe even worse, you can
+    use <code>$center</code> and it will actually work - most of the time. The problem happens
+    if <code>center</code> contains lines that actually begin with the <code>|</code> character:</p>
+    <pre><code>val center = """
+           |is a
+           ||multiline beginning with pipe
+        """.trimMargin()
+
+    val example = """
+           |This
+           |$center
+           |string.
+        """.trimMargin()
+    </code></pre>
+    <p>Notice that extra <code>|</code> I added in front of <code>multiline</code>? That indicates that the
+    line actually does begin with a <code>|</code> character:</p>
+    <pre><code>is a
+    |multiline beginning with pipe
+    </code></pre>
+    <p>But because I referenced <code>$center</code> directly that leading <code>|</code> gets removed and
+    <code>|multiline beginning with pipe</code> turns into <code>multiline beginning with pipe</code>:</p>
+    <pre><code>This
+    is a
+    multiline beginning with pipe
+    string.
+    </code></pre>
+    <p>So it works, if you accept some ugliness, and you're careful. I wanted a better
+    way. And it turns out I can do it in Scala. I just need to define a custom
+    string type:</p>
+    <pre><code>implicit class AdjustedMultiline(val sc: StringContext) extends AnyVal {
+        def m(args: Any*): String = {
+            // Create a string where each arg is 'x'
+            assert(sc.parts.length == args.length + 1)
+            val parts = sc.parts
+            val substitutedArgs = args.map(_ =&gt; "x")
+            val indentString = (parts.init zip substitutedArgs).map { case (part, arg) =&gt; part + arg }.mkString + parts.last
+
+            // Use this string to compute the indent count
+            val indentCount = indentString.linesIterator
+                .filter(_.trim.nonEmpty)
+                .map(line =&gt; line.takeWhile(_ == ' ').length)
+                .minOption
+                .getOrElse(0) // Default value when there's no non-empty line
+
+            // Add in this indentation to each newline within each arg
+            val processed = sc.parts.zipAll(args, "", "").map {
+                case (str, arg) =&gt;
+                    str + arg.toString.split("\n").mkString("\n" + (" " * indentCount))
+            }
+
+            // Strip starting/ending newlines with leading/trailing spaces.
+            // We do this to support syntax like:
+            //   val str = m"""
+            //       string content
+            //     """
+            // which should be equal to "string content"
+            val combined = processed.mkString.replaceAll("^ *\n", "").replaceAll("\n *$", "")
+
+            combined.linesIterator.map(line =&gt; line.drop(indentCount)).mkString("\n")
+        }
+    }
+    </code></pre>
+    <p>And then I can write:</p>
+    <pre><code>val center = m"""
+            is a
+            multiline
+        """
+
+    val example = m"""
+            This
+            $center
+            string.
+        """
+    </code></pre>
+    <p>And it works the way I'd hope:</p>
+    <pre><code>This
+    is a
+    multiline
+    string.
+    </code></pre>
+    <p>Is there any reason why language designers don't handle multiline string
+    templating like this by default?</p>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted November 21, 2023.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+    <a href="https://mulcahy.ca/tags/misc.html">#misc</a>
+    </p>
+    <div class="navbar">
+    <a href="https://mulcahy.ca/">Index</a>
+    <a href="https://mulcahy.ca/rss.xml">RSS</a>
+    <a href="https://mulcahy.ca/about.html">About</a>
+    </div>
+    ]]></content:encoded>
     </item>
     <item>
        <title>Clearing the terminal scrollback</title>
        <link>https://mulcahy.ca/posts/clearing-the-terminal-scrollback.html</link>
        <description>Making clear work the way I think it should</description>
-       <pubDate>2023-11-19 21:29:59</pubDate>
-       <guid isPermaLink="true">posts/clearing-the-terminal-scrollback.html</guid>
-    </item>
-    <item>
-       <title>Simple password generator in Python</title>
-       <link>https://mulcahy.ca/posts/simple-password-generator-in-python.html</link>
-       <description>3 line Python script for generating secure passwords</description>
-       <pubDate>2023-11-18 16:28:22</pubDate>
-       <guid isPermaLink="true">posts/simple-password-generator-in-python.html</guid>
-    </item>
-    <item>
-       <title>logcat, but just one package</title>
-       <link>https://mulcahy.ca/posts/logcat-package.html</link>
-       <description>A shell script for limiting logcat output to a single package</description>
-       <pubDate>2023-09-17 08:46:11</pubDate>
-       <guid isPermaLink="true">posts/logcat-package.html</guid>
+       <pubDate>Sun, 19 Nov 2023 21:29:59 -0800</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/clearing-the-terminal-scrollback.html</guid>
+       <content:encoded><![CDATA[
+    <h1>Clearing the terminal scrollback</h1>
+    <p><i>Making clear work the way I think it should</i></p>
+    <p>For some reason the <code>clear</code> command clears the terminal but not the scrollback
+    buffer. Here's how to fix that. Consider placing this in your
+    <code>.zshrc</code>/<code>.bashrc</code>/etc so that it's always available.</p>
+    <pre><code>clear() {
+        # Invoke the original clear command
+        command clear
+
+        # Clear the scrollback buffer
+        printf '\e[3J'
+    }
+    </code></pre>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted November 19, 2023.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+    <a href="https://mulcahy.ca/tags/shell.html">#shell</a>, <a href="https://mulcahy.ca/tags/cli.html">#cli</a>
+    </p>
+    <div class="navbar">
+    <a href="https://mulcahy.ca/">Index</a>
+    <a href="https://mulcahy.ca/rss.xml">RSS</a>
+    <a href="https://mulcahy.ca/about.html">About</a>
+    </div>
+    ]]></content:encoded>
     </item>
 </channel>
 </rss>

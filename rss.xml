@@ -191,61 +191,6 @@
     ]]></content:encoded>
     </item>
     <item>
-       <title>https-enabled subdomain forwarding, with Github Pages</title>
-       <link>https://mulcahy.ca/posts/https-enabled-subdomain-forwarding-with-github-pages.html</link>
-       <description>How to use Github Pages to forward subdomain traffic</description>
-       <pubDate>Sun, 05 Jan 2025 07:54:02 -0800</pubDate>
-       <guid isPermaLink="true">https://mulcahy.ca/posts/https-enabled-subdomain-forwarding-with-github-pages.html</guid>
-       <content:encoded><![CDATA[
-    <h1>https-enabled subdomain forwarding, with Github Pages</h1>
-    <p><i>How to use Github Pages to forward subdomain traffic</i></p>
-    <p>I've hosted my blog at Github Pages for over a year, but I didn't realize I
-    could also use Github Pages for subdomains. I thought I'd have to manually
-    setup Let's Encrypt, so I'd been holding off. However, it turns out GitHub
-    Pages makes this really easy—no manual certificate management required!</p>
-    <p>Here’s how I set up an HTTPS redirect for one of my subdomains in just a few
-    minutes:</p>
-    <h2 id="step-1-add-a-cname-entry-for-the-subdomain">Step 1 - Add a CNAME entry for the subdomain</h2>
-    <p>Via my registrar, I added a CNAME entry for my subdomain pointing to my Github
-    Pages URL (<code>USERNAME.github.io</code>). If you’re already hosting your main site on
-    GitHub Pages, don’t worry—it’s fine to have multiple CNAME entries for
-    different subdomains all pointing to the same URL.</p>
-    <h2 id="step-2-create-a-subdomain-redirect-github-project">Step 2 - Create a subdomain-redirect Github project</h2>
-    <p>I created a separate GitHub repository (public, to use the free tier) with a simple index.html file in the root directory to handle the redirect.</p>
-    <p>Here’s the content of my index.html:</p>
-    <pre><code class="language-html">&lt;!DOCTYPE html&gt;
-    &lt;html&gt;
-    &lt;head&gt;
-        &lt;meta http-equiv="refresh" content="0; url=https://example.com"&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-        &lt;p&gt;Redirecting to &lt;a href="https://example.com"&gt;https://example.com&lt;/a&gt;.&lt;/p&gt;
-    &lt;/body&gt;
-    &lt;/html&gt;
-    </code></pre>
-    <h2 id="step-3-configure-the-github-project-to-use-the-subdomain">Step 3 - Configure the Github project to use the subdomain</h2>
-    <p>Under <strong>Settings</strong> -&gt; <strong>Pages</strong>, I selected the main branch as the source for the Pages
-    site. Then, under <strong>Custom Domain</strong>, I specified my subdomain (e.g.
-    <code>sub.example.com</code>).  After saving, GitHub automatically provisioned an SSL
-    certificate using <a href="https://letsencrypt.org/">Let’s Encrypt</a>.</p>
-    <p>Within a minute, my HTTPS redirect was up and running.</p>
-    <br/>
-    <p>
-        If you enjoyed this post, please let me know on
-        <a href="https://twitter.com/tommulcahy">Twitter</a>
-        or
-        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
-    </p>
-    <p>
-    <i>Posted January 05, 2025.</i>
-    </p>
-    <p>
-    <i>Tags:</i>
-    <a href="https://mulcahy.ca/tags/web.html">#web</a>
-    </p>
-    ]]></content:encoded>
-    </item>
-    <item>
        <title>A Linux groups gotcha</title>
        <link>https://mulcahy.ca/posts/a-linux-groups-gotcha.html</link>
        <description>You have to log out and log back in after adding yourself to a group</description>
@@ -995,6 +940,53 @@
     <p>
     <i>Tags:</i>
     <a href="https://mulcahy.ca/tags/shell.html">#shell</a>, <a href="https://mulcahy.ca/tags/cli.html">#cli</a>
+    </p>
+    ]]></content:encoded>
+    </item>
+    <item>
+       <title>Simple password generator in Python</title>
+       <link>https://mulcahy.ca/posts/simple-password-generator-in-python.html</link>
+       <description>3 line Python script for generating secure passwords</description>
+       <pubDate>Sat, 18 Nov 2023 16:28:22 -0800</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/simple-password-generator-in-python.html</guid>
+       <content:encoded><![CDATA[
+    <h1>Simple password generator in Python</h1>
+    <p><i>3 line Python script for generating secure passwords</i></p>
+    <p>Sometimes I need a password and I don't have a good way to generate one. Maybe
+    it's a website and Chrome isn't auto-suggesting a password. Maybe it's not a
+    website. Whatever the situation, here's a simple Python script I use to
+    generate a secure password.</p>
+    <pre><code>#!/usr/bin/env python3
+
+    import secrets
+
+    # These characters are easily distinguishable, and they don't count as
+    # separators in iTerm, so you can double-click to copy/paste
+    alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz~_-+./'
+    assert len(alphabet) == 64
+
+    # log2(64) == 6, so we get 6 bits per char, so 11 chars gives us 66 bits of
+    # randomness
+    print(''.join(secrets.choice(alphabet) for i in range(11)))
+
+    </code></pre>
+    <p>This is basically just 3 lines of code (plus comments/assertions) so I
+    think it's easy enough to analyze for correctness. It uses
+    <a href="https://docs.python.org/3/library/secrets.html">secrets</a> as a source for
+    secure randomness.</p>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted November 18, 2023.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+    <a href="https://mulcahy.ca/tags/python.html">#python</a>
     </p>
     ]]></content:encoded>
     </item>

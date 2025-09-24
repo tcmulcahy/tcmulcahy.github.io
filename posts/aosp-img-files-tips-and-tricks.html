@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AOSP img files tips and tricks</title>
+<style>
+        :root {
+            /* Light Mode */
+            --background-color: white;
+            --text-color: black;
+            --link-color: blue;
+            --visited-link-color: purple;
+            --hover-link-color: darkorange;
+            --active-link-color: red;
+
+            /* Post Entries */
+            --post-date-color: black;
+            --post-title-color: black;
+            --post-tags-color: blue;
+
+            /* Code Block */
+            --code-background: #f0f0f0;
+            --code-text: #333333;
+            --code-keyword: #000000;
+            --code-operator: #000000;
+            --code-punctuation: #333333;
+            --code-special-bg: #ffffc0;
+            --code-special-text: #000000;
+            --code-highlight-line: #ffffcc;
+            --code-whitespace: #c0c0c0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                /* Dark Mode */
+                --background-color: black;
+                --text-color: white;
+                --link-color: #1E90FF;
+                --visited-link-color: #9370DB;
+                --hover-link-color: #FFD700;
+                --active-link-color: #FF4500;
+
+                /* Post Entries */
+                --post-date-color: #cccccc;
+                --post-title-color: white;
+                --post-tags-color: #1E90FF;
+
+                /* Code Block */
+                --code-background: #272727;
+                --code-text: #e0e0e0;
+                --code-keyword: #ffffff;
+                --code-operator: #ffffff;
+                --code-punctuation: #ffffff;
+                --code-special-bg: #ffffc0;
+                --code-special-text: #000000;
+                --code-highlight-line: #ffffcc;
+                --code-whitespace: #c0c0c0;
+            }
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 20px;
+            margin: 0 auto;
+            max-width: 60em;
+        }
+
+        .navbar {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding: 0.5em;
+        }
+
+        .post-list {
+            width: 100%;
+        }
+
+        .post-entry {
+            display: grid;
+            grid-template-columns: 60px 1fr auto; /* Fixed width for date, flexible width for title, auto for tags */
+            gap: 1em; /* Space between columns */
+            align-items: center; /* Ensures vertical alignment */
+            padding: 0.5em 0; /* Spacing between posts */
+        }
+
+        .post-date {
+            color: var(--post-date-color);
+            text-align: left;
+            font-size: 0.9em;
+            white-space: nowrap; /* Prevents wrapping */
+        }
+
+        .post-title {
+            color: var(--post-title-color);
+            overflow: hidden; /* Ensures text doesn't overflow */
+            text-overflow: ellipsis; /* Adds ellipsis for long titles */
+            white-space: nowrap; /* Prevents wrapping */
+        }
+
+        .post-tags {
+            flex: 0 0 10em;
+            text-align: right;
+            margin-left: auto; /* push text to the right */
+        }
+
+        a {
+            color: var(--link-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:visited {
+            color: var(--visited-link-color);
+        }
+
+        a:hover {
+            color: var(--hover-link-color);
+            text-decoration: underline;
+        }
+
+        a:active {
+            color: var(--active-link-color);
+        }
+
+        .anchor-symbol {
+          font-family: sans-serif;
+          position: absolute;
+          left: 0; /* Position at the header's left edge */
+          transform: translateX(-100%); /* Shift it just left of that edge */
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          text-decoration: none;
+          color: inherit; /* Match the header text color */
+          font-size: 0.9em; /* Adjust size if desired */
+          line-height: 1; /* Helps vertically center icon with text */
+        }
+
+        h1:hover .anchor-symbol,
+        h2:hover .anchor-symbol,
+        h3:hover .anchor-symbol,
+        h4:hover .anchor-symbol,
+        h5:hover .anchor-symbol,
+        h6:hover .anchor-symbol {
+          opacity: 1;
+          text-decoration: none;
+        }
+
+        .heading-link,
+        .heading-link:visited,
+        .heading-link:hover,
+        .heading-link:active,
+        .heading-link:focus {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+          position: relative;
+        }
+
+        /* Code Blocks */
+        pre {
+            line-height: 125%;
+            padding: 16px;
+        }
+
+        code {
+            background: var(--code-background);
+            color: var(--code-text);
+            padding-left: 2px;
+            padding-right: 2px;
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+
+        pre > code {
+            /* Remove extra padding added in the code rule above */
+            padding: 0;
+        }
+
+        .codehilite {
+            background: var(--code-background);
+            color: var(--code-text);
+        }
+
+        .codehilite .k {
+            color: var(--code-keyword);
+            font-weight: bold;
+        }
+
+        .codehilite .o {
+            color: var(--code-operator);
+            font-weight: bold;
+        }
+
+        .codehilite .p {
+            color: var(--code-punctuation);
+            font-weight: bold;
+        }
+
+        .codehilite .hll {
+            background-color: var(--code-highlight-line);
+        }
+
+        .codehilite .w {
+            color: var(--code-whitespace);
+        }
+
+        .code-block-container {
+          position: relative;  /* So the button can be absolutely positioned */
+          margin: 1em 0;       /* Optional spacing around code blocks */
+        }
+
+        .code-block-container pre {
+          overflow: auto;       /* Horizontal scroll if needed */
+        }
+
+        /* The copy icon button, initially hidden */
+        .copy-btn {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          border: none;
+          border-radius: 4px;
+          background-color: #666; /* Feel free to choose any color */
+          color: #fff;
+          cursor: pointer;
+          font-size: 1.25em;
+        }
+
+        /* Show the button when hovering over the container */
+        .code-block-container:hover .copy-btn {
+          opacity: 1;
+        }
+    </style>
+<script>
+        document.addEventListener("DOMContentLoaded", () => {
+          document.querySelectorAll(".copy-btn").forEach(button => {
+            button.addEventListener("click", () => {
+              // Find the associated code block inside the same container
+              const container = button.closest(".code-block-container");
+              const codeElem = container.querySelector("code");
+              const codeText = codeElem.textContent || codeElem.innerText;
+
+              // Copy the text to clipboard
+              navigator.clipboard.writeText(codeText).then(() => {
+                const original = button.textContent;
+                button.textContent = "✓";
+                setTimeout(() => button.textContent = original, 1500);
+              }).catch(err => {
+                console.error("Failed to copy", err);
+                button.textContent = "Error";
+              });
+            });
+          });
+        });
+    </script>
+</head>
+<body>
+<h1>AOSP img files tips and tricks</h1>
+<p><i>Example commands for working with AOSP img files on a Mac</i></p>
+<p>AOSP builds are generally a zip containing a number of <code>.img</code> files. At least
+this is the case for the builds you download from
+<a href="https://developers.google.com/android/images">https://developers.google.com/android/images</a>. </p>
+<p>These images aren't a fixed format - they may contain any number of types of
+data. To see what you have, try running:</p>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="c">% file boot.img</span>
+<span class="n">boot</span><span class="p">.</span><span class="n">img</span><span class="p">:</span><span class="w"> </span><span class="n">Android</span><span class="w"> </span><span class="n">bootimg</span><span class="p">,</span><span class="w"> </span><span class="n">kernel</span><span class="w"> </span><span class="p">(</span>0<span class="n">x800</span><span class="p">),</span><span class="w"> </span><span class="n">ramdisk</span><span class="w"> </span><span class="k">...</span>
+</code></pre></div></div>
+<p>Another example:</p>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="c">% file vendor.img</span>
+<span class="n">vendor</span><span class="p">.</span><span class="n">img</span><span class="p">:</span><span class="w"> </span><span class="n">Android</span><span class="w"> </span><span class="nb">sparse</span><span class="w"> </span><span class="nb">image</span><span class="p">,</span><span class="w"> </span><span class="nb">version</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="k">...</span>
+</code></pre></div></div>
+<p>Another example (<code>file</code> doesn't understand the vbmeta format)</p>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="c">% file vbmeta.img</span>
+<span class="n">vbmeta</span><span class="p">.</span><span class="n">img</span><span class="p">:</span><span class="w"> </span><span class="n">data</span>
+</code></pre></div></div>
+<p><a href="https://newandroidbook.com/tools/imjtool.html">imjtool</a> is more sophisticated.
+It can recognize the vbmeta.img format (you'll need to download the binary
+first):</p>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="o">%</span><span class="w"> </span><span class="n">imjtool</span><span class="w"> </span><span class="n">vbmeta</span><span class="o">.</span><span class="n">img</span>
+<span class="n">vbmeta</span><span class="o">.</span><span class="n">img</span><span class="p">:</span><span class="w"> </span><span class="n">Android</span><span class="w"> </span><span class="n">Verified</span><span class="w"> </span><span class="n">Boot</span><span class="w"> </span><span class="n">image</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="o">...</span>
+</code></pre></div></div>
+<p>For some image types (e.g. boot/sparse) it can even extract the contents:</p>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="o">%</span><span class="w"> </span><span class="n">imjtool</span><span class="w"> </span><span class="n">vendor</span><span class="o">.</span><span class="n">img</span><span class="w"> </span><span class="n">extract</span><span class="w"> </span><span class="n">all</span>
+<span class="n">Sparse</span><span class="w"> </span><span class="n">image</span><span class="w"> </span><span class="n">v1</span><span class="o">.</span><span class="mi">0</span><span class="w"> </span><span class="n">detected</span><span class="w"> </span><span class="p">(</span><span class="ow">in</span><span class="w"> </span><span class="n">container</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="mh">0x0</span><span class="p">)</span>
+<span class="mi">181465</span><span class="w"> </span><span class="n">blocks</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="mi">4096</span><span class="w"> </span><span class="n">bytes</span><span class="w"> </span><span class="n">compressed</span><span class="w"> </span><span class="n">into</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="n">chunks</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="o">%</span><span class="w"> </span><span class="n">compressed</span><span class="p">)</span>
+<span class="mi">0</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Extracted</span><span class="w"> </span><span class="n">image</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">extracted</span><span class="o">/</span><span class="n">image</span><span class="o">.</span><span class="n">img</span>
+<span class="o">%</span><span class="w"> </span><span class="n">ls</span><span class="w"> </span><span class="n">extracted</span>
+<span class="n">image</span><span class="o">.</span><span class="n">img</span>
+<span class="o">%</span><span class="w"> </span><span class="n">imjtool</span><span class="w"> </span><span class="n">extracted</span><span class="o">/</span><span class="n">image</span><span class="o">.</span><span class="n">img</span>
+<span class="n">Linux</span><span class="w"> </span><span class="n">Ext4</span><span class="w"> </span><span class="n">filesystem</span><span class="w"> </span><span class="n">image</span><span class="p">,</span><span class="w"> </span><span class="n">Volume</span><span class="w"> </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="n">vendor</span>
+</code></pre></div></div>
+<p>If you encounter an image that's an ext file system, you can use e2tools to
+access its content without mounting it. Mounting ext on Mac is super annoying
+because it requires FUSE, which requires disabling some system protections.</p>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="o">%</span><span class="w"> </span><span class="n">brew</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="n">e2tools</span>
+<span class="o">...</span>
+<span class="o">%</span><span class="w"> </span><span class="n">e2ls</span><span class="w"> </span><span class="n">extracted</span><span class="o">/</span><span class="n">image</span><span class="o">.</span><span class="n">img</span><span class="p">:</span><span class="o">/</span>
+<span class="n">app</span><span class="w">             </span><span class="n">bin</span><span class="w">             </span><span class="n">build</span><span class="o">.</span><span class="n">prop</span><span class="w">      </span><span class="n">default</span><span class="o">.</span><span class="n">prop</span><span class="w">    </span><span class="n">dsp</span>
+<span class="o">...</span>
+<span class="o">%</span><span class="w"> </span><span class="n">e2cp</span><span class="w"> </span><span class="n">extracted</span><span class="o">/</span><span class="n">image</span><span class="o">.</span><span class="n">img</span><span class="p">:</span><span class="o">/</span><span class="n">build</span><span class="o">.</span><span class="n">prop</span><span class="w"> </span><span class="n">build</span><span class="o">.</span><span class="n">prop</span>
+</code></pre></div></div>
+<p>Some of the devices I work with don't have adb-enabled, so I can't just
+adb-shell into a running system to examine what's going on. Other times I want
+to examine the configuration for a build that I don't have currently installed.
+Maybe I don't even have a device that I can install that build on. It's nice to
+be able to examine the images directly. For example, on a running system I
+might use <code>adb shell zcat /proc/config.gz</code> to see kernel configs. I can access
+those same configs working directly from images:</p>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="o">%</span><span class="w"> </span><span class="n">imjtool</span><span class="w"> </span><span class="n">boot</span><span class="o">.</span><span class="n">img</span><span class="w"> </span><span class="n">extract</span><span class="w"> </span><span class="n">all</span>
+<span class="n">boot</span><span class="o">.</span><span class="n">img</span><span class="p">:</span><span class="w"> </span><span class="n">Android</span><span class="w"> </span><span class="n">Boot</span><span class="w"> </span><span class="n">image</span><span class="w"> </span><span class="n">v2</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">OS</span><span class="w"> </span><span class="n">ver</span><span class="w"> </span><span class="o">...</span>
+<span class="o">...</span>
+<span class="o">%</span><span class="w"> </span><span class="n">git</span><span class="w"> </span><span class="n">clone</span><span class="w"> </span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">torvalds</span><span class="o">/</span><span class="n">linux</span><span class="o">.</span><span class="n">git</span>
+<span class="o">...</span>
+<span class="o">%</span><span class="w"> </span><span class="n">LC_ALL</span><span class="o">=</span><span class="n">C</span><span class="w"> </span><span class="n">linux</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">extract</span><span class="o">-</span><span class="n">ikconfig</span><span class="w"> </span><span class="n">extracted</span><span class="o">/</span><span class="n">kernel</span><span class="o">.</span><span class="n">decompressed</span>
+<span class="c1">#</span>
+<span class="c1"># Automatically generated file; DO NOT EDIT.</span>
+<span class="c1"># Linux/arm64 4.14.170 Kernel Configuration</span>
+<span class="c1">#</span>
+<span class="n">CONFIG_ARM64</span><span class="o">=</span><span class="n">y</span>
+<span class="n">CONFIG_64BIT</span><span class="o">=</span><span class="n">y</span>
+<span class="o">...</span>
+</code></pre></div></div>
+<p>Note that this command is somewhat finicky. The extracted kernel filename may
+be slightly different. You may need to <code>brew install gzip</code> in order to get
+command-line tools that are compatible with the extract-ikconfig script. And
+you'll probably need <code>LC_ALL=C</code> to address locale problems.</p>
+<p>Also note that just because you can access the images doesn't mean that you can
+modify them and expect them to work. If you want to do that, you'll need to take Android Verified Boot into account. See <a href="https://android.googlesource.com/platform/external/avb/+/master/README.md">https://android.googlesource.com/platform/external/avb/+/master/README.md</a> for more details.</p>
+<br/>
+<p>
+    If you enjoyed this post, please let me know on
+    <a href="https://twitter.com/tommulcahy">Twitter</a>
+    or
+    <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+</p>
+<p>
+<i>Posted September 24, 2025.</i>
+</p>
+<p>
+<i>Tags:</i>
+<a href="https://mulcahy.ca/tags/aosp.html">#aosp</a>, <a href="https://mulcahy.ca/tags/linux.html">#linux</a>, <a href="https://mulcahy.ca/tags/mac.html">#mac</a>
+</p>
+<div class="navbar">
+<a href="https://mulcahy.ca/">Index</a>
+<a href="https://mulcahy.ca/rss.xml">RSS</a>
+<a href="https://mulcahy.ca/about.html">About</a>
+</div>
+</body>
+</html>

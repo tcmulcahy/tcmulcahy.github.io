@@ -9,6 +9,100 @@
     <atom:link href="https://mulcahy.ca/rss.xml" rel="self" type="application/rss+xml" />
 
     <item>
+       <title>AOSP img files tips and tricks</title>
+       <link>https://mulcahy.ca/posts/aosp-img-files-tips-and-tricks.html</link>
+       <description>Example commands for working with AOSP img files on a Mac</description>
+       <pubDate>Wed, 24 Sep 2025 12:34:42 -0700</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/aosp-img-files-tips-and-tricks.html</guid>
+       <content:encoded><![CDATA[
+    <h1>AOSP img files tips and tricks</h1>
+    <p><i>Example commands for working with AOSP img files on a Mac</i></p>
+    <p>AOSP builds are generally a zip containing a number of <code>.img</code> files. At least
+    this is the case for the builds you download from
+    <a href="https://developers.google.com/android/images">https://developers.google.com/android/images</a>. </p>
+    <p>These images aren't a fixed format - they may contain any number of types of
+    data. To see what you have, try running:</p>
+    <pre><code>% file boot.img
+    boot.img: Android bootimg, kernel (0x800), ramdisk ...
+    </code></pre>
+    <p>Another example:</p>
+    <pre><code>% file vendor.img
+    vendor.img: Android sparse image, version: 1.0, ...
+    </code></pre>
+    <p>Another example (<code>file</code> doesn't understand the vbmeta format)</p>
+    <pre><code>% file vbmeta.img
+    vbmeta.img: data
+    </code></pre>
+    <p><a href="https://newandroidbook.com/tools/imjtool.html">imjtool</a> is more sophisticated.
+    It can recognize the vbmeta.img format (you'll need to download the binary
+    first):</p>
+    <pre><code>% imjtool vbmeta.img
+    vbmeta.img: Android Verified Boot image, version 1.0, ...
+    </code></pre>
+    <p>For some image types (e.g. boot/sparse) it can even extract the contents:</p>
+    <pre><code>% imjtool vendor.img extract all
+    Sparse image v1.0 detected (in container at offset 0x0)
+    181465 blocks of 4096 bytes compressed into 15 chunks (1% compressed)
+    0 - Extracted image is in extracted/image.img
+    % ls extracted
+    image.img
+    % imjtool extracted/image.img
+    Linux Ext4 filesystem image, Volume name: vendor
+    </code></pre>
+    <p>If you encounter an image that's an ext file system, you can use e2tools to
+    access its content without mounting it. Mounting ext on Mac is super annoying
+    because it requires FUSE, which requires disabling some system protections.</p>
+    <pre><code>% brew install e2tools
+    ...
+    % e2ls extracted/image.img:/
+    app             bin             build.prop      default.prop    dsp
+    ...
+    % e2cp extracted/image.img:/build.prop build.prop
+    </code></pre>
+    <p>Some of the devices I work with don't have adb-enabled, so I can't just
+    adb-shell into a running system to examine what's going on. Other times I want
+    to examine the configuration for a build that I don't have currently installed.
+    Maybe I don't even have a device that I can install that build on. It's nice to
+    be able to examine the images directly. For example, on a running system I
+    might use <code>adb shell zcat /proc/config.gz</code> to see kernel configs. I can access
+    those same configs working directly from images:</p>
+    <pre><code>% imjtool boot.img extract all
+    boot.img: Android Boot image v2 for OS ver ...
+    ...
+    % git clone https://github.com/torvalds/linux.git
+    ...
+    % LC_ALL=C linux/scripts/extract-ikconfig extracted/kernel.decompressed
+    #
+    # Automatically generated file; DO NOT EDIT.
+    # Linux/arm64 4.14.170 Kernel Configuration
+    #
+    CONFIG_ARM64=y
+    CONFIG_64BIT=y
+    ...
+    </code></pre>
+    <p>Note that this command is somewhat finicky. The extracted kernel filename may
+    be slightly different. You may need to <code>brew install gzip</code> in order to get
+    command-line tools that are compatible with the extract-ikconfig script. And
+    you'll probably need <code>LC_ALL=C</code> to address locale problems.</p>
+    <p>Also note that just because you can access the images doesn't mean that you can
+    modify them and expect them to work. If you want to do that, you'll need to take Android Verified Boot into account. See <a href="https://android.googlesource.com/platform/external/avb/+/master/README.md">https://android.googlesource.com/platform/external/avb/+/master/README.md</a> for more details.</p>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted September 24, 2025.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+    <a href="https://mulcahy.ca/tags/aosp.html">#aosp</a>, <a href="https://mulcahy.ca/tags/linux.html">#linux</a>, <a href="https://mulcahy.ca/tags/mac.html">#mac</a>
+    </p>
+    ]]></content:encoded>
+    </item>
+    <item>
        <title>A Unix process coup d'etat</title>
        <link>https://mulcahy.ca/posts/a-unix-process-coup-detat.html</link>
        <description>How to put a Unix process in sole control of the terminal (and why you shouldn't do that)</description>
@@ -940,53 +1034,6 @@
     <p>
     <i>Tags:</i>
     <a href="https://mulcahy.ca/tags/shell.html">#shell</a>, <a href="https://mulcahy.ca/tags/cli.html">#cli</a>
-    </p>
-    ]]></content:encoded>
-    </item>
-    <item>
-       <title>Simple password generator in Python</title>
-       <link>https://mulcahy.ca/posts/simple-password-generator-in-python.html</link>
-       <description>3 line Python script for generating secure passwords</description>
-       <pubDate>Sat, 18 Nov 2023 16:28:22 -0800</pubDate>
-       <guid isPermaLink="true">https://mulcahy.ca/posts/simple-password-generator-in-python.html</guid>
-       <content:encoded><![CDATA[
-    <h1>Simple password generator in Python</h1>
-    <p><i>3 line Python script for generating secure passwords</i></p>
-    <p>Sometimes I need a password and I don't have a good way to generate one. Maybe
-    it's a website and Chrome isn't auto-suggesting a password. Maybe it's not a
-    website. Whatever the situation, here's a simple Python script I use to
-    generate a secure password.</p>
-    <pre><code>#!/usr/bin/env python3
-
-    import secrets
-
-    # These characters are easily distinguishable, and they don't count as
-    # separators in iTerm, so you can double-click to copy/paste
-    alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz~_-+./'
-    assert len(alphabet) == 64
-
-    # log2(64) == 6, so we get 6 bits per char, so 11 chars gives us 66 bits of
-    # randomness
-    print(''.join(secrets.choice(alphabet) for i in range(11)))
-
-    </code></pre>
-    <p>This is basically just 3 lines of code (plus comments/assertions) so I
-    think it's easy enough to analyze for correctness. It uses
-    <a href="https://docs.python.org/3/library/secrets.html">secrets</a> as a source for
-    secure randomness.</p>
-    <br/>
-    <p>
-        If you enjoyed this post, please let me know on
-        <a href="https://twitter.com/tommulcahy">Twitter</a>
-        or
-        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
-    </p>
-    <p>
-    <i>Posted November 18, 2023.</i>
-    </p>
-    <p>
-    <i>Tags:</i>
-    <a href="https://mulcahy.ca/tags/python.html">#python</a>
     </p>
     ]]></content:encoded>
     </item>

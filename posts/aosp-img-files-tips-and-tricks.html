@@ -298,8 +298,9 @@ first):</p>
 <span class="n">Linux</span><span class="w"> </span><span class="n">Ext4</span><span class="w"> </span><span class="n">filesystem</span><span class="w"> </span><span class="n">image</span><span class="p">,</span><span class="w"> </span><span class="n">Volume</span><span class="w"> </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="n">vendor</span>
 </code></pre></div></div>
 <p>If you encounter an image that's an ext file system, you can use e2tools to
-access its content without mounting it. Mounting ext on Mac is super annoying
-because it requires FUSE, which requires disabling some system protections.</p>
+access its content without mounting it (It's super annoying to mount EXT
+filesystems on Mac because it requires FUSE, which requires disabling some
+system protections).</p>
 <div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="o">%</span><span class="w"> </span><span class="n">brew</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="n">e2tools</span>
 <span class="o">...</span>
 <span class="o">%</span><span class="w"> </span><span class="n">e2ls</span><span class="w"> </span><span class="n">extracted</span><span class="o">/</span><span class="n">image</span><span class="o">.</span><span class="n">img</span><span class="p">:</span><span class="o">/</span>

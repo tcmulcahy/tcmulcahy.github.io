@@ -50,8 +50,9 @@
     Linux Ext4 filesystem image, Volume name: vendor
     </code></pre>
     <p>If you encounter an image that's an ext file system, you can use e2tools to
-    access its content without mounting it. Mounting ext on Mac is super annoying
-    because it requires FUSE, which requires disabling some system protections.</p>
+    access its content without mounting it (It's super annoying to mount EXT
+    filesystems on Mac because it requires FUSE, which requires disabling some
+    system protections).</p>
     <pre><code>% brew install e2tools
     ...
     % e2ls extracted/image.img:/

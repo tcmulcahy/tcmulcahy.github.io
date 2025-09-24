@@ -307,13 +307,13 @@ because it requires FUSE, which requires disabling some system protections.</p>
 <span class="o">...</span>
 <span class="o">%</span><span class="w"> </span><span class="n">e2cp</span><span class="w"> </span><span class="n">extracted</span><span class="o">/</span><span class="n">image</span><span class="o">.</span><span class="n">img</span><span class="p">:</span><span class="o">/</span><span class="n">build</span><span class="o">.</span><span class="n">prop</span><span class="w"> </span><span class="n">build</span><span class="o">.</span><span class="n">prop</span>
 </code></pre></div></div>
-<p>Some of the devices I work with don't have adb-enabled, so I can't just
-adb-shell into a running system to examine what's going on. Other times I want
+<p>Some of the devices I work with don't have <code>adb</code> enabled, so I can't just
+<code>adb shell</code> into a running system to examine what's going on. Other times I want
 to examine the configuration for a build that I don't have currently installed.
 Maybe I don't even have a device that I can install that build on. It's nice to
-be able to examine the images directly. For example, on a running system I
-might use <code>adb shell zcat /proc/config.gz</code> to see kernel configs. I can access
-those same configs working directly from images:</p>
+be able to examine the images directly. For example, on a running system with
+<code>adb</code> enabled I might use <code>adb shell zcat /proc/config.gz</code> to see kernel
+configs. I can access those same configs working directly from images:</p>
 <div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="o">%</span><span class="w"> </span><span class="n">imjtool</span><span class="w"> </span><span class="n">boot</span><span class="o">.</span><span class="n">img</span><span class="w"> </span><span class="n">extract</span><span class="w"> </span><span class="n">all</span>
 <span class="n">boot</span><span class="o">.</span><span class="n">img</span><span class="p">:</span><span class="w"> </span><span class="n">Android</span><span class="w"> </span><span class="n">Boot</span><span class="w"> </span><span class="n">image</span><span class="w"> </span><span class="n">v2</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">OS</span><span class="w"> </span><span class="n">ver</span><span class="w"> </span><span class="o">...</span>
 <span class="o">...</span>

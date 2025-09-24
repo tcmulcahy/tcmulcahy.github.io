@@ -59,13 +59,13 @@
     ...
     % e2cp extracted/image.img:/build.prop build.prop
     </code></pre>
-    <p>Some of the devices I work with don't have adb-enabled, so I can't just
-    adb-shell into a running system to examine what's going on. Other times I want
+    <p>Some of the devices I work with don't have <code>adb</code> enabled, so I can't just
+    <code>adb shell</code> into a running system to examine what's going on. Other times I want
     to examine the configuration for a build that I don't have currently installed.
     Maybe I don't even have a device that I can install that build on. It's nice to
-    be able to examine the images directly. For example, on a running system I
-    might use <code>adb shell zcat /proc/config.gz</code> to see kernel configs. I can access
-    those same configs working directly from images:</p>
+    be able to examine the images directly. For example, on a running system with
+    <code>adb</code> enabled I might use <code>adb shell zcat /proc/config.gz</code> to see kernel
+    configs. I can access those same configs working directly from images:</p>
     <pre><code>% imjtool boot.img extract all
     boot.img: Android Boot image v2 for OS ver ...
     ...

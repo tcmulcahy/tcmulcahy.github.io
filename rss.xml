@@ -9,6 +9,63 @@
     <atom:link href="https://mulcahy.ca/rss.xml" rel="self" type="application/rss+xml" />
 
     <item>
+       <title>ZFS safety</title>
+       <link>https://mulcahy.ca/posts/zfs-safety.html</link>
+       <description>What happens when you temporarily disconnect a disk from a ZFS pool?</description>
+       <pubDate>Wed, 24 Sep 2025 14:05:37 -0700</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/zfs-safety.html</guid>
+       <content:encoded><![CDATA[
+    <h1>ZFS safety</h1>
+    <p><i>What happens when you temporarily disconnect a disk from a ZFS pool?</i></p>
+    <p>ZFS provides RAID-Z to prevent data loss in the event of a disk failure. I was recently surprised to learn that</p>
+    <ol>
+    <li>SATA data cables can disconnect quite easily, and</li>
+    <li>ZFS does not prevent writes when disks are missing</li>
+    </ol>
+    <p>I wonder what would happen under the following scenario:</p>
+    <ol>
+    <li>You have a RAID-Z1 vdev with 3 disks (it can survive 1 disk failure but not
+       two, parity is distributed across the disks). </li>
+    <li>One of the disks gets disconnected.</li>
+    <li>You issue a write that gets persisted to the remaining disks.</li>
+    <li>One of the remaining disks fails</li>
+    <li>You reconnect the disconnected disk</li>
+    </ol>
+    <p>Can you recover? Obviously the last write is toast. But can ZFS recover
+    everything before that point? I'm not sure, but I found two easy (but
+    incomplete) mitigations:</p>
+    <ol>
+    <li>Always use locking SATA data cables. They are cheap and they prevent accidental disconnections.</li>
+    <li>Modify systemd to import zpool in readonly mode (and then export/re-import in read/write after verifying that all the disks are connected)</li>
+    </ol>
+    <pre><code>% sudo EDITOR=vim systemctl edit zfs-import-cache.service
+    [Service]
+    # Clear the original ExecStart
+    ExecStart=
+
+    # Replace it with an ExecStart that sets readonly=on
+    ExecStart=/sbin/zpool import -c /etc/zfs/zpool.cache -aN -o readonly=on
+    </code></pre>
+    <p>Another mitigation that's not always practical: mirror. If you have 2
+    disks, use RAID-Z1. If you have 3, RAID-Z2. If you have 4, RAID-Z3. That way
+    any disk will work on its own.</p>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted September 24, 2025.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+    <a href="https://mulcahy.ca/tags/linux.html">#linux</a>, <a href="https://mulcahy.ca/tags/zfs.html">#zfs</a>
+    </p>
+    ]]></content:encoded>
+    </item>
+    <item>
        <title>AOSP img files tips and tricks</title>
        <link>https://mulcahy.ca/posts/aosp-img-files-tips-and-tricks.html</link>
        <description>Example commands for working with AOSP img files on a Mac</description>
@@ -999,42 +1056,6 @@
     <p>
     <i>Tags:</i>
     <a href="https://mulcahy.ca/tags/misc.html">#misc</a>
-    </p>
-    ]]></content:encoded>
-    </item>
-    <item>
-       <title>Clearing the terminal scrollback</title>
-       <link>https://mulcahy.ca/posts/clearing-the-terminal-scrollback.html</link>
-       <description>Making clear work the way I think it should</description>
-       <pubDate>Sun, 19 Nov 2023 21:29:59 -0800</pubDate>
-       <guid isPermaLink="true">https://mulcahy.ca/posts/clearing-the-terminal-scrollback.html</guid>
-       <content:encoded><![CDATA[
-    <h1>Clearing the terminal scrollback</h1>
-    <p><i>Making clear work the way I think it should</i></p>
-    <p>For some reason the <code>clear</code> command clears the terminal but not the scrollback
-    buffer. Here's how to fix that. Consider placing this in your
-    <code>.zshrc</code>/<code>.bashrc</code>/etc so that it's always available.</p>
-    <pre><code>clear() {
-        # Invoke the original clear command
-        command clear
-
-        # Clear the scrollback buffer
-        printf '\e[3J'
-    }
-    </code></pre>
-    <br/>
-    <p>
-        If you enjoyed this post, please let me know on
-        <a href="https://twitter.com/tommulcahy">Twitter</a>
-        or
-        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
-    </p>
-    <p>
-    <i>Posted November 19, 2023.</i>
-    </p>
-    <p>
-    <i>Tags:</i>
-    <a href="https://mulcahy.ca/tags/shell.html">#shell</a>, <a href="https://mulcahy.ca/tags/cli.html">#cli</a>
     </p>
     ]]></content:encoded>
     </item>

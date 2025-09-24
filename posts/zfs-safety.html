@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ZFS safety</title>
+<style>
         :root {
             /* Light Mode */
             --background-color: white;
@@ -238,83 +239,82 @@
           opacity: 1;
         }
     </style>
+<script>
+        document.addEventListener("DOMContentLoaded", () => {
+          document.querySelectorAll(".copy-btn").forEach(button => {
+            button.addEventListener("click", () => {
+              // Find the associated code block inside the same container
+              const container = button.closest(".code-block-container");
+              const codeElem = container.querySelector("code");
+              const codeText = codeElem.textContent || codeElem.innerText;
+
+              // Copy the text to clipboard
+              navigator.clipboard.writeText(codeText).then(() => {
+                const original = button.textContent;
+                button.textContent = "✓";
+                setTimeout(() => button.textContent = original, 1500);
+              }).catch(err => {
+                console.error("Failed to copy", err);
+                button.textContent = "Error";
+              });
+            });
+          });
+        });
+    </script>
 </head>
 <body>
-<h1>Index</h1>
-<div class="post-list">
-    <div class="post-entry">
-        <span class="post-date">Sep '25</span>
-        <span class="post-title"><a href="posts/zfs-safety.html">ZFS safety</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/linux.html">#linux</a>, <a href="https://mulcahy.ca/tags/zfs.html">#zfs</a></span>
-    </div>
-    <div class="post-entry">
-        <span class="post-date">Sep '25</span>
-        <span class="post-title"><a href="posts/aosp-img-files-tips-and-tricks.html">AOSP img files tips and tricks</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/aosp.html">#aosp</a>, <a href="https://mulcahy.ca/tags/linux.html">#linux</a>, <a href="https://mulcahy.ca/tags/mac.html">#mac</a></span>
-    </div>
-    <div class="post-entry">
-        <span class="post-date">Jan '25</span>
-        <span class="post-title"><a href="posts/a-unix-process-coup-detat.html">A Unix process coup d'etat</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/shell.html">#shell</a></span>
-    </div>
-    <div class="post-entry">
-        <span class="post-date">Jan '25</span>
-        <span class="post-title"><a href="posts/invoking-scripts-that-handle-ctrl-c-from-kotlin-java.html">Invoking scripts that handle CTRL-C from Kotlin/Java</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/android.html">#android</a>, <a href="https://mulcahy.ca/tags/shell.html">#shell</a></span>
-    </div>
-    <div class="post-entry">
-        <span class="post-date">Dec '24</span>
-        <span class="post-title"><a href="posts/a-linux-groups-gotcha.html">A Linux groups gotcha</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/linux.html">#linux</a></span>
-    </div>
-    <div class="post-entry">
-        <span class="post-date">Dec '24</span>
-        <span class="post-title"><a href="posts/frustrations-with-google-takeout.html">Frustrations with Google Takeout</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/python.html">#python</a></span>
-    </div>
-    <div class="post-entry">
-        <span class="post-date">Dec '24</span>
-        <span class="post-title"><a href="posts/clis-with-updating-statuses.html">CLIs with updating statuses</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/cli.html">#cli</a></span>
-    </div>
-    <div class="post-entry">
-        <span class="post-date">Dec '23</span>
-        <span class="post-title"><a href="posts/configuring-computer-names-within-a-lan.html">Configuring computer names within a LAN</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/linux.html">#linux</a></span>
-    </div>
-    <div class="post-entry">
-        <span class="post-date">Nov '23</span>
-        <span class="post-title"><a href="posts/avoiding-shell-double-evaluation.html">Avoiding shell double-evaluation</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/shell.html">#shell</a></span>
-    </div>
-    <div class="post-entry">
-        <span class="post-date">Nov '23</span>
-        <span class="post-title"><a href="posts/better-multiline-string-templates.html">Better multiline string templates</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/misc.html">#misc</a></span>
-    </div>
-    <div class="post-entry">
-        <span class="post-date">Nov '23</span>
-        <span class="post-title"><a href="posts/clearing-the-terminal-scrollback.html">Clearing the terminal scrollback</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/shell.html">#shell</a>, <a href="https://mulcahy.ca/tags/cli.html">#cli</a></span>
-    </div>
-    <div class="post-entry">
-        <span class="post-date">Nov '23</span>
-        <span class="post-title"><a href="posts/simple-password-generator-in-python.html">Simple password generator in Python</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/python.html">#python</a></span>
-    </div>
-    <div class="post-entry">
-        <span class="post-date">Sep '23</span>
-        <span class="post-title"><a href="posts/logcat-package.html">logcat, but just one package</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/android.html">#android</a></span>
-    </div>
-</div>
+<h1>ZFS safety</h1>
+<p><i>What happens when you temporarily disconnect a disk from a ZFS pool?</i></p>
+<p>ZFS provides RAID-Z to prevent data loss in the event of a disk failure. I was recently surprised to learn that</p>
+<ol>
+<li>SATA data cables can disconnect quite easily, and</li>
+<li>ZFS does not prevent writes when disks are missing</li>
+</ol>
+<p>I wonder what would happen under the following scenario:</p>
+<ol>
+<li>You have a RAID-Z1 vdev with 3 disks (it can survive 1 disk failure but not
+   two, parity is distributed across the disks). </li>
+<li>One of the disks gets disconnected.</li>
+<li>You issue a write that gets persisted to the remaining disks.</li>
+<li>One of the remaining disks fails</li>
+<li>You reconnect the disconnected disk</li>
+</ol>
+<p>Can you recover? Obviously the last write is toast. But can ZFS recover
+everything before that point? I'm not sure, but I found two easy (but
+incomplete) mitigations:</p>
+<ol>
+<li>Always use locking SATA data cables. They are cheap and they prevent accidental disconnections.</li>
+<li>Modify systemd to import zpool in readonly mode (and then export/re-import in read/write after verifying that all the disks are connected)</li>
+</ol>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="o">%</span><span class="w"> </span><span class="n">sudo</span><span class="w"> </span><span class="n">EDITOR</span><span class="o">=</span><span class="n">vim</span><span class="w"> </span><span class="n">systemctl</span><span class="w"> </span><span class="n">edit</span><span class="w"> </span><span class="n">zfs</span><span class="o">-</span><span class="n">import</span><span class="o">-</span><span class="n">cache</span><span class="o">.</span><span class="n">service</span>
+<span class="p">[</span><span class="n">Service</span><span class="p">]</span>
+<span class="c1"># Clear the original ExecStart</span>
+<span class="n">ExecStart</span><span class="o">=</span>
 
-<br>
+<span class="c1"># Replace it with an ExecStart that sets readonly=on</span>
+<span class="n">ExecStart</span><span class="o">=/</span><span class="n">sbin</span><span class="o">/</span><span class="n">zpool</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="o">-</span><span class="n">c</span><span class="w"> </span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">zfs</span><span class="o">/</span><span class="n">zpool</span><span class="o">.</span><span class="n">cache</span><span class="w"> </span><span class="o">-</span><span class="n">aN</span><span class="w"> </span><span class="o">-</span><span class="n">o</span><span class="w"> </span><span class="n">readonly</span><span class="o">=</span><span class="n">on</span>
+</code></pre></div></div>
+<p>Another mitigation that's not always practical: mirror. If you have 2
+disks, use RAID-Z1. If you have 3, RAID-Z2. If you have 4, RAID-Z3. That way
+any disk will work on its own.</p>
+<br/>
+<p>
+    If you enjoyed this post, please let me know on
+    <a href="https://twitter.com/tommulcahy">Twitter</a>
+    or
+    <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+</p>
+<p>
+<i>Posted September 24, 2025.</i>
+</p>
+<p>
+<i>Tags:</i>
+<a href="https://mulcahy.ca/tags/linux.html">#linux</a>, <a href="https://mulcahy.ca/tags/zfs.html">#zfs</a>
+</p>
 <div class="navbar">
-    <a href="https://mulcahy.ca/">Index</a>
-    <a href="https://mulcahy.ca/rss.xml">RSS</a>
-    <a href="https://mulcahy.ca/about.html">About</a>
+<a href="https://mulcahy.ca/">Index</a>
+<a href="https://mulcahy.ca/rss.xml">RSS</a>
+<a href="https://mulcahy.ca/about.html">About</a>
 </div>
-
 </body>
 </html>

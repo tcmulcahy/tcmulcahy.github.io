@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>#mac</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>subshell pid</title>
+<style>
         :root {
             /* Light Mode */
             --background-color: white;
@@ -238,28 +239,75 @@
           opacity: 1;
         }
     </style>
+<script>
+        document.addEventListener("DOMContentLoaded", () => {
+          document.querySelectorAll(".copy-btn").forEach(button => {
+            button.addEventListener("click", () => {
+              // Find the associated code block inside the same container
+              const container = button.closest(".code-block-container");
+              const codeElem = container.querySelector("code");
+              const codeText = codeElem.textContent || codeElem.innerText;
+
+              // Copy the text to clipboard
+              navigator.clipboard.writeText(codeText).then(() => {
+                const original = button.textContent;
+                button.textContent = "✓";
+                setTimeout(() => button.textContent = original, 1500);
+              }).catch(err => {
+                console.error("Failed to copy", err);
+                button.textContent = "Error";
+              });
+            });
+          });
+        });
+    </script>
 </head>
 <body>
-<h1>#mac</h1>
-<div class="post-list">
-    <div class="post-entry">
-        <span class="post-date">Oct '25</span>
-        <span class="post-title"><a href="../posts/subshell-pid.html">subshell pid</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/shell.html">#shell</a>, <a href="https://mulcahy.ca/tags/mac.html">#mac</a></span>
-    </div>
-    <div class="post-entry">
-        <span class="post-date">Sep '25</span>
-        <span class="post-title"><a href="../posts/aosp-img-files-tips-and-tricks.html">AOSP img files tips and tricks</a></span>
-        <span class="post-tags"><a href="https://mulcahy.ca/tags/aosp.html">#aosp</a>, <a href="https://mulcahy.ca/tags/linux.html">#linux</a>, <a href="https://mulcahy.ca/tags/mac.html">#mac</a></span>
-    </div>
-</div>
-
-<br>
+<h1>subshell pid</h1>
+<p><i>How to get the pid of the current process from within a subshell</i></p>
+<p>One of the awesome things about shell scripting (maybe the only awesome thing
+actually) is that you can easily create subshells that can see the variables
+from the parent process:</p>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="nv">foo</span><span class="o">=</span><span class="s2">"my variable"</span>
+<span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"foo=</span><span class="nv">$foo</span><span class="s2">"</span><span class="w"> </span><span class="o">}</span><span class="w"> </span><span class="c1"># command grouping - runs in same process - prints 'foo=my variable'</span>
+<span class="o">(</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"foo=</span><span class="nv">$foo</span><span class="s2">"</span><span class="w"> </span><span class="o">)</span><span class="w"> </span><span class="c1"># subshell - runs in a new process - prints 'foo=my variable'</span>
+</code></pre></div></div>
+<p>I find it somewhat surprising, but <code>$$</code> always evaluates to the pid of the
+top-level instance, even when used inside a subshell. Probably this behavior
+dates back decades and now it must be maintained for historical reasons. It's
+kind of convenient sometimes - you can use it to generate temporary files and
+share them between subshells easily - but I wish there was an easy way to get
+the PID of a subshell.</p>
+<p>Bash 4 introduced the variable <code>$BASHPID</code> which works - but only if you're
+using bash, and it has to be a recent version. MacOS ships with an ancient
+version of Bash that doesn't support <code>$BASHPID</code>.</p>
+<p>What can you do instead? This is the best way that I've found is:</p>
+<div class="codehilite"><div class="code-block-container"><button class="copy-btn">⧉</button><pre><span></span><code><span class="nv">my_pid</span><span class="o">=</span><span class="k">$(</span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">'echo $PPID'</span><span class="k">)</span>
+</code></pre></div></div>
+<p>It works by forking/execing a new instance of <code>sh</code>, then evaluating the string
+<code>echo $PPID</code>, which is the pid of the parent process. i.e. We create a child
+process that prints its parent pid.</p>
+<p>Note: <code>$PPID</code> has the same behavior as <code>$$</code> in subshells - it always refers to
+the parent of the top-level instance. But we avoid that behavior by passing the
+string <code>echo $PPID</code> to <code>sh</code>, so it doesn't get expanded by the current shell.</p>
+<br/>
+<p>
+    If you enjoyed this post, please let me know on
+    <a href="https://twitter.com/tommulcahy">Twitter</a>
+    or
+    <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+</p>
+<p>
+<i>Posted October 30, 2025.</i>
+</p>
+<p>
+<i>Tags:</i>
+<a href="https://mulcahy.ca/tags/shell.html">#shell</a>, <a href="https://mulcahy.ca/tags/mac.html">#mac</a>
+</p>
 <div class="navbar">
-    <a href="https://mulcahy.ca/">Index</a>
-    <a href="https://mulcahy.ca/rss.xml">RSS</a>
-    <a href="https://mulcahy.ca/about.html">About</a>
+<a href="https://mulcahy.ca/">Index</a>
+<a href="https://mulcahy.ca/rss.xml">RSS</a>
+<a href="https://mulcahy.ca/about.html">About</a>
 </div>
-
 </body>
 </html>

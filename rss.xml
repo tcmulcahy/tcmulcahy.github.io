@@ -9,6 +9,56 @@
     <atom:link href="https://mulcahy.ca/rss.xml" rel="self" type="application/rss+xml" />
 
     <item>
+       <title>subshell pid</title>
+       <link>https://mulcahy.ca/posts/subshell-pid.html</link>
+       <description>How to get the pid of the current process from within a subshell</description>
+       <pubDate>Thu, 30 Oct 2025 10:04:45 -0700</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/subshell-pid.html</guid>
+       <content:encoded><![CDATA[
+    <h1>subshell pid</h1>
+    <p><i>How to get the pid of the current process from within a subshell</i></p>
+    <p>One of the awesome things about shell scripting (maybe the only awesome thing
+    actually) is that you can easily create subshells that can see the variables
+    from the parent process:</p>
+    <pre><code class="language-shell">foo="my variable"
+    { echo "foo=$foo" } # command grouping - runs in same process - prints 'foo=my variable'
+    ( echo "foo=$foo" ) # subshell - runs in a new process - prints 'foo=my variable'
+    </code></pre>
+    <p>I find it somewhat surprising, but <code>$$</code> always evaluates to the pid of the
+    top-level instance, even when used inside a subshell. Probably this behavior
+    dates back decades and now it must be maintained for historical reasons. It's
+    kind of convenient sometimes - you can use it to generate temporary files and
+    share them between subshells easily - but I wish there was an easy way to get
+    the PID of a subshell.</p>
+    <p>Bash 4 introduced the variable <code>$BASHPID</code> which works - but only if you're
+    using bash, and it has to be a recent version. MacOS ships with an ancient
+    version of Bash that doesn't support <code>$BASHPID</code>.</p>
+    <p>What can you do instead? This is the best way that I've found is:</p>
+    <pre><code class="language-shell">my_pid=$(sh -c 'echo $PPID')
+    </code></pre>
+    <p>It works by forking/execing a new instance of <code>sh</code>, then evaluating the string
+    <code>echo $PPID</code>, which is the pid of the parent process. i.e. We create a child
+    process that prints its parent pid.</p>
+    <p>Note: <code>$PPID</code> has the same behavior as <code>$$</code> in subshells - it always refers to
+    the parent of the top-level instance. But we avoid that behavior by passing the
+    string <code>echo $PPID</code> to <code>sh</code>, so it doesn't get expanded by the current shell.</p>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted October 30, 2025.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+    <a href="https://mulcahy.ca/tags/shell.html">#shell</a>, <a href="https://mulcahy.ca/tags/mac.html">#mac</a>
+    </p>
+    ]]></content:encoded>
+    </item>
+    <item>
        <title>ZFS safety</title>
        <link>https://mulcahy.ca/posts/zfs-safety.html</link>
        <description>What happens when you temporarily disconnect a disk from a ZFS pool?</description>
@@ -887,175 +937,6 @@
     <p>
     <i>Tags:</i>
     <a href="https://mulcahy.ca/tags/shell.html">#shell</a>
-    </p>
-    ]]></content:encoded>
-    </item>
-    <item>
-       <title>Better multiline string templates</title>
-       <link>https://mulcahy.ca/posts/better-multiline-string-templates.html</link>
-       <description>Subtle problems with templates in multiline strings and some ways to fix them</description>
-       <pubDate>Tue, 21 Nov 2023 17:12:31 -0800</pubDate>
-       <guid isPermaLink="true">https://mulcahy.ca/posts/better-multiline-string-templates.html</guid>
-       <content:encoded><![CDATA[
-    <h1>Better multiline string templates</h1>
-    <p><i>Subtle problems with templates in multiline strings and some ways to fix them</i></p>
-    <p>These days many languages support multiline string templates. Here's what they
-    look like in Kotlin:</p>
-    <pre><code class="language-kotlin">val example = """
-            This
-            is a
-            multiline
-            string.
-        """
-    </code></pre>
-    <p>But that will create a multiline with a bunch of spaces at the beginning of each line:</p>
-    <pre><code>        This
-            is a
-            multiline
-            string.
-    </code></pre>
-    <p>So I like to use <code>trimIndent</code> to remove these spaces.</p>
-    <pre><code class="language-kotlin">val example = """
-            This
-            is a
-            multiline
-            string.
-        """.trimIndent()
-    </code></pre>
-    <p>This works the way I expect:</p>
-    <pre><code>This
-    is a
-    multiline
-    string.
-    </code></pre>
-    <p>But problems happen when I combine string templating with trimIndent:</p>
-    <pre><code>val center = """
-            is a
-            multiline
-        """.trimIndent()
-
-    val example = """
-            This
-            $center
-            string.
-        """.trimIndent()
-    </code></pre>
-    <p><code>$center</code> gets expanded to a string consisting of two lines with no
-    indentation. The first line is indented because <code>$center</code> itself is indented.
-    But the second line is not indented.</p>
-    <pre><code>        This
-            is a
-    multiline
-            string.
-    </code></pre>
-    <p>If you want a workaround that works in kotlin, try this:</p>
-    <pre><code>val center = """
-           |is a
-           |multiline
-        """.trimMargin()
-
-    val example = """
-           |This
-           |${center.replace("\n", "\n|")}
-           |string.
-        """.trimMargin()
-    </code></pre>
-    <p>I think the margin character is a little ugly, and the requirement of embedding
-    with <code>${center.replace("\n", "\n|")}</code> is quite ugly. Maybe even worse, you can
-    use <code>$center</code> and it will actually work - most of the time. The problem happens
-    if <code>center</code> contains lines that actually begin with the <code>|</code> character:</p>
-    <pre><code>val center = """
-           |is a
-           ||multiline beginning with pipe
-        """.trimMargin()
-
-    val example = """
-           |This
-           |$center
-           |string.
-        """.trimMargin()
-    </code></pre>
-    <p>Notice that extra <code>|</code> I added in front of <code>multiline</code>? That indicates that the
-    line actually does begin with a <code>|</code> character:</p>
-    <pre><code>is a
-    |multiline beginning with pipe
-    </code></pre>
-    <p>But because I referenced <code>$center</code> directly that leading <code>|</code> gets removed and
-    <code>|multiline beginning with pipe</code> turns into <code>multiline beginning with pipe</code>:</p>
-    <pre><code>This
-    is a
-    multiline beginning with pipe
-    string.
-    </code></pre>
-    <p>So it works, if you accept some ugliness, and you're careful. I wanted a better
-    way. And it turns out I can do it in Scala. I just need to define a custom
-    string type:</p>
-    <pre><code>implicit class AdjustedMultiline(val sc: StringContext) extends AnyVal {
-        def m(args: Any*): String = {
-            // Create a string where each arg is 'x'
-            assert(sc.parts.length == args.length + 1)
-            val parts = sc.parts
-            val substitutedArgs = args.map(_ =&gt; "x")
-            val indentString = (parts.init zip substitutedArgs).map { case (part, arg) =&gt; part + arg }.mkString + parts.last
-
-            // Use this string to compute the indent count
-            val indentCount = indentString.linesIterator
-                .filter(_.trim.nonEmpty)
-                .map(line =&gt; line.takeWhile(_ == ' ').length)
-                .minOption
-                .getOrElse(0) // Default value when there's no non-empty line
-
-            // Add in this indentation to each newline within each arg
-            val processed = sc.parts.zipAll(args, "", "").map {
-                case (str, arg) =&gt;
-                    str + arg.toString.split("\n").mkString("\n" + (" " * indentCount))
-            }
-
-            // Strip starting/ending newlines with leading/trailing spaces.
-            // We do this to support syntax like:
-            //   val str = m"""
-            //       string content
-            //     """
-            // which should be equal to "string content"
-            val combined = processed.mkString.replaceAll("^ *\n", "").replaceAll("\n *$", "")
-
-            combined.linesIterator.map(line =&gt; line.drop(indentCount)).mkString("\n")
-        }
-    }
-    </code></pre>
-    <p>And then I can write:</p>
-    <pre><code>val center = m"""
-            is a
-            multiline
-        """
-
-    val example = m"""
-            This
-            $center
-            string.
-        """
-    </code></pre>
-    <p>And it works the way I'd hope:</p>
-    <pre><code>This
-    is a
-    multiline
-    string.
-    </code></pre>
-    <p>Is there any reason why language designers don't handle multiline string
-    templating like this by default?</p>
-    <br/>
-    <p>
-        If you enjoyed this post, please let me know on
-        <a href="https://twitter.com/tommulcahy">Twitter</a>
-        or
-        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
-    </p>
-    <p>
-    <i>Posted November 21, 2023.</i>
-    </p>
-    <p>
-    <i>Tags:</i>
-    <a href="https://mulcahy.ca/tags/misc.html">#misc</a>
     </p>
     ]]></content:encoded>
     </item>

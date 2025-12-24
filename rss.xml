@@ -9,6 +9,91 @@
     <atom:link href="https://mulcahy.ca/rss.xml" rel="self" type="application/rss+xml" />
 
     <item>
+       <title>Avoiding shell double-evaluation (part 2)</title>
+       <link>https://mulcahy.ca/posts/avoiding-shell-double-evaluation-2.html</link>
+       <description>Avoid shell double-evaluation (part 2)</description>
+       <pubDate>Wed, 24 Dec 2025 11:18:59 -0800</pubDate>
+       <guid isPermaLink="true">https://mulcahy.ca/posts/avoiding-shell-double-evaluation-2.html</guid>
+       <content:encoded><![CDATA[
+    <h1>Avoiding shell double-evaluation (part 2)</h1>
+    <p><i>Avoid shell double-evaluation (part 2)</i></p>
+    <p>In an earlier
+    <a href="https://mulcahy.ca/posts/avoiding-shell-double-evaluation.html">post</a> I
+    demonstrated a simple shell script that can be used to invoke <code>adb shell</code>
+    and/or <code>ssh</code> without evaluating arguments a second time.</p>
+    <p>But what if you want to run something as root? It turns out it just works.
+    AOSP's <code>su</code> and Linux's <code>sudo</code> do what I consider the right thing: They
+    preserve arguments without evaluating them.</p>
+    <pre><code class="language-bash">$ run-escaped 'adb shell su 0' /data/local/tmp/echo-args.sh 'hello world'
+    "hello world"
+    </code></pre>
+    <pre><code class="language-bash">$ run-escaped 'ssh remotebox sudo' echo-args.sh 'hello world'
+    "hello world"
+    </code></pre>
+    <p>(Note: If your remotebox requires a password for sudo, you'll want to pass <code>-t</code>
+    to ssh to force pseudo-tty allocation - otherwise you'll get an error like
+    <code>sudo: a terminal is required to read the password; either use the -S option to
+    read from standard input or configure an askpass helper</code>)</p>
+    <p>It gets more complicated if you want to run as root and evaluate your
+    arguments. The naive thing will evaluate arguments as the <code>shell</code> user and then
+    pass them to root.</p>
+    <pre><code class="language-bash">$ adb shell su 0 'echo $(whoami)'
+    shell
+    </code></pre>
+    <p>Therefore, I've written a new version of <code>run-escaped</code> that provides an option
+    for evaluating its arguments:</p>
+    <pre><code class="language-bash">run-escaped() {
+      eval_args=""
+      while [ "$#" -gt 0 ]; do
+        case "$1" in
+          -e|--eval-args) eval_args=yes; shift ;;
+          --) shift; break ;;
+          -*) die "unknown option $1" ;;
+          *) break ;;
+        esac
+      done
+
+      # e.g. `adb shell`, `adb shell su 0`, `ssh remotebox`, `ssh remotebox sudo`
+      shell="$1"
+      shift
+
+      if [ -n "$eval_args" ]; then
+        maybeEval='eval "$*"'
+      else
+        maybeEval='"$@"'
+      fi
+
+      set -- sh -c "$maybeEval" -- "$@"
+      $shell "$(printf " %q" "$@")"
+    }
+    </code></pre>
+    <p>You can use it like this:</p>
+    <pre><code class="language-bash">$ run-escaped --eval-args 'adb shell su 0' 'echo $(whoami)'
+    root
+    </code></pre>
+    <pre><code class="language-bash">$ run-escaped --eval-args 'ssh remotebox sudo' 'echo $(whoami)'
+    root
+    </code></pre>
+    <p>It works by quoting its arguments, and explicitly invoking <code>eval "$*"</code> within
+    sh (running as root) (as opposed to letting <code>adb shell</code> / <code>ssh</code> do it
+    implicitly).</p>
+    <br/>
+    <p>
+        If you enjoyed this post, please let me know on
+        <a href="https://twitter.com/tommulcahy">Twitter</a>
+        or
+        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
+    </p>
+    <p>
+    <i>Posted December 24, 2025.</i>
+    </p>
+    <p>
+    <i>Tags:</i>
+        &lt;None&gt;
+    </p>
+    ]]></content:encoded>
+    </item>
+    <item>
        <title>subshell pid</title>
        <link>https://mulcahy.ca/posts/subshell-pid.html</link>
        <description>How to get the pid of the current process from within a subshell</description>
@@ -865,78 +950,6 @@
     <p>
     <i>Tags:</i>
     <a href="https://mulcahy.ca/tags/linux.html">#linux</a>
-    </p>
-    ]]></content:encoded>
-    </item>
-    <item>
-       <title>Avoiding shell double-evaluation</title>
-       <link>https://mulcahy.ca/posts/avoiding-shell-double-evaluation.html</link>
-       <description>How to avoid double-evaluating commands in ssh / adb shell / etc.</description>
-       <pubDate>Wed, 22 Nov 2023 12:44:21 -0800</pubDate>
-       <guid isPermaLink="true">https://mulcahy.ca/posts/avoiding-shell-double-evaluation.html</guid>
-       <content:encoded><![CDATA[
-    <h1>Avoiding shell double-evaluation</h1>
-    <p><i>How to avoid double-evaluating commands in ssh / adb shell / etc.</i></p>
-    <p>I like to use the following <code>echo-args.sh</code> script to debug shell
-    double-evaluation problems:</p>
-    <pre><code class="language-shell">#!/bin/sh
-
-    for arg; do
-        echo \""$arg"\"
-    done
-    </code></pre>
-    <p>You can then push this to an android device:</p>
-    <pre><code class="language-shell">$ chmod u+x echo-args.sh
-    $ adb push /data/local/tmp/
-    </code></pre>
-    <p>And run it like so:</p>
-    <pre><code class="language-shell">$ ./echo-args.sh 'hello world'
-    "hello world"
-    $ adb shell /data/local/tmp/echo-args.sh 'hello world'
-    "hello"
-    "world"
-    </code></pre>
-    <p>And here lies the problem. When we run a command with <code>adb shell</code> (or <code>ssh</code>) it
-    gets double-evaluated - once by our current shell, and once by the shell on the
-    device. Sometimes this might be what you want. e.g. You might want to evaluated
-    an environment variable in the context of the remote shell.</p>
-    <p>But it's really annoying when it's not what you want. I've written a
-    scripts that invoke <code>adb shell</code> internally and <em>mostly</em> work, except when I
-    pass arguments with spaces.</p>
-    <p>I <em>think</em> I've figured out a robust workaround:</p>
-    <pre><code class="language-shell">run-escaped() {
-      shell=$1
-      shift
-
-      $shell "$(printf " %q" "$@")"
-    }
-    </code></pre>
-    <p>Usage:</p>
-    <pre><code class="language-shell">$ run-escaped 'adb shell' /data/local/tmp/echo-args.sh 'hello world'
-    "hello world"
-    </code></pre>
-    <p>It also works with <code>ssh</code>:</p>
-    <pre><code class="language-shell">$ run-escaped 'ssh remotebox' echo-args.sh 'hello world'
-    "hello world"
-    </code></pre>
-    <p>This works by first escaping all of the arguments, after they've been
-    evaluated once by the local shell. Then it passes this as a string to the
-    remote shell.</p>
-    <p>The double-evaluation still happens, but since we escaped our parameters, it's
-    as if it didn't happen.</p>
-    <br/>
-    <p>
-        If you enjoyed this post, please let me know on
-        <a href="https://twitter.com/tommulcahy">Twitter</a>
-        or
-        <a href="https://bsky.app/profile/tcmulcahy.bsky.social">Bluesky</a>.
-    </p>
-    <p>
-    <i>Posted November 22, 2023.</i>
-    </p>
-    <p>
-    <i>Tags:</i>
-    <a href="https://mulcahy.ca/tags/shell.html">#shell</a>
     </p>
     ]]></content:encoded>
     </item>
